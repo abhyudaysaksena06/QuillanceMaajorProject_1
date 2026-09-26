@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Avatar from './Avatar';
@@ -13,27 +13,28 @@ export default function Layout() {
     { to: '/courses', label: 'Browse Courses', icon: '📚' },
   ];
   if (user.role === 'student') {
-    links.push({ to: '/my-learning', label: 'My Learning', icon: '🎯' });
+    links.push({ to: '/my-learning', label: 'My Courses', icon: '🎯' });
     links.push({ to: '/assignments', label: 'Assignments', icon: '📝' });
   }
   if (user.role === 'instructor' || user.role === 'admin') {
-    links.push({ to: '/teach', label: 'My Courses', icon: '🧑‍🏫' });
+    links.push({ to: '/teach', label: 'Manage Courses', icon: '🧑‍🏫' });
+    links.push({ to: '/teach/submissions', label: 'Submissions', icon: '📥' });
   }
-  if (user.role === 'admin') links.push({ to: '/admin', label: 'Admin Panel', icon: '🛡️' });
+  if (user.role === 'admin') links.push({ to: '/admin', label: 'Manage Users', icon: '🛡️' });
   links.push({ to: '/profile', label: 'Profile', icon: '👤' });
 
   const handleLogout = async () => {
     await logout();
-    navigate('/login');
+    navigate('/');
   };
 
   return (
     <div className="app-shell">
       <aside className={`sidebar ${open ? 'open' : ''}`}>
-        <div className="brand">🎓 <span>LearnSphere</span></div>
+        <Link to="/" className="brand">🎓 <span>LearnSphere</span></Link>
         <nav>
           {links.map((l) => (
-            <NavLink key={l.to} to={l.to} onClick={() => setOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>
+            <NavLink key={l.to} to={l.to} end onClick={() => setOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>
               <span className="nav-icon">{l.icon}</span>{l.label}
             </NavLink>
           ))}

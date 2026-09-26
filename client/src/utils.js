@@ -26,3 +26,20 @@ export function toLocalInput(iso) {
   const d = new Date(iso);
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 }
+
+export const RESOURCE_TYPES = {
+  notes: '📄 Notes', pdf: '📕 PDF', video: '🎬 Video', code: '💻 Source code', reference: '🔗 Reference', exercise: '🏋️ Practice exercise',
+};
+
+/** Badge for a student's submission state. */
+export function submissionBadge(sub, maxPoints, dueDate) {
+  if (!sub) {
+    return dueDate && new Date(dueDate) < new Date()
+      ? { cls: 'badge-danger', text: 'Missed' } : { cls: 'badge-warning', text: relativeDue(dueDate) };
+  }
+  if (sub.status === 'graded') return { cls: 'badge-success', text: `Graded: ${sub.grade}/${maxPoints}` };
+  if (sub.status === 'resubmit') return { cls: 'badge-danger', text: 'Resubmission requested' };
+  return { cls: 'badge-info', text: 'Submitted' };
+}
+
+export const isLate = (sub, dueDate) => Boolean(sub && dueDate && new Date(sub.submitted_at) > new Date(dueDate));

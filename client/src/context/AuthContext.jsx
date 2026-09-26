@@ -1,5 +1,8 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import {
+  onAuthStateChanged, signInWithPopup, signOut, createUserWithEmailAndPassword,
+  signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile,
+} from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import { api } from '../api';
 
@@ -34,10 +37,19 @@ export function AuthProvider({ children }) {
   }), [refreshProfile]);
 
   const login = () => signInWithPopup(auth, googleProvider);
+  const loginWithEmail = (email, password) => signInWithEmailAndPassword(auth, email, password);
+  const resetPassword = (email) => sendPasswordResetEmail(auth, email);
+
+  // Firebase stores and hashes the password; we then save the display name to our profile.
+  const register = async (name, email, password) => {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(cred.user, { displayName: name });
+    setProfile(await api('/auth/me', { method: 'PATCH', body: { name } }));
+  };
   const logout = () => signOut(auth);
 
   return (
-    <AuthContext.Provider value={{ firebaseUser, user: profile, setUser: setProfile, loading, error, login, logout, refreshProfile }}>
+    <AuthContext.Provider value={{ firebaseUser, user: profile, setUser: setProfile, loading, error, login, loginWithEmail, register, resetPassword, logout, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

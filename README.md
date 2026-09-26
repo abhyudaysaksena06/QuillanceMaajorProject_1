@@ -1,12 +1,25 @@
 # 🎓 LearnSphere: Learning Management System
 
 A full-stack **Learning Management System (LMS)** built as the Quillance Infotech Full Stack Development major project.
-Students enroll in courses, work through lessons, track their progress and submit assignments. Instructors build courses and grade work. Admins manage users and roles.
+Students enroll in courses, study ordered modules, submit assignments and track their progress. Instructors build courses and review work. Admins manage users and roles.
+
+> **Author:** Abhyuday Saksena · Full Stack Development Intern, Quillance Infotech Pvt. Ltd.
+> **Live demo:** _add your deployment link here_
+
+## 🎯 Problem statement & objectives
+Online learning is often spread across chat groups, drive folders and spreadsheets. There's no single place to see course content, deadlines, submissions and progress. LearnSphere brings this into one platform with secure, role-based dashboards.
+
+- Centralised platform for courses, modules, assignments and students
+- Secure registration, login and role-based access
+- Instructors/admins create, edit and manage courses, modules and assignments
+- Students enroll, study materials and submit assignments
+- Course completion is tracked and shown on dashboards
+- Demonstrates frontend, backend, REST APIs, authentication, database and deployment
 
 | Layer | Technology |
 |---|---|
 | Frontend | React 18, Vite, React Router 6, custom responsive CSS |
-| Authentication | **Firebase Authentication** (Google Sign-In) |
+| Authentication | **Firebase Authentication**: email/password (passwords hashed by Firebase) + Google Sign-In |
 | Backend API | Node.js, Express 4, Firebase Admin SDK (token verification), Helmet, CORS |
 | Database | **Supabase** (PostgreSQL) with Row Level Security |
 | Deployment | Vercel (frontend), Render/Railway (backend), Supabase (DB) |
@@ -16,30 +29,34 @@ Students enroll in courses, work through lessons, track their progress and submi
 ## ✨ Features
 
 ### Authentication and roles
+- **Registration and login with email and password**, with form validation, clear errors for wrong credentials or an already-registered email, and **password reset** by email. Firebase stores passwords as salted hashes (scrypt), and they never reach our server or database.
 - One-click **Google Sign-In** through Firebase.
 - Each API request carries a Firebase **ID token**. The Express server checks it with the Firebase Admin SDK before it touches the database.
 - The user record is created in Supabase automatically on first login. The user then picks a role (**Student** or **Instructor**) during onboarding.
 - **Role-based access control (RBAC)** on both the server (`requireRole` middleware plus ownership checks) and the client (protected routes).
 - Emails listed in `ADMIN_EMAILS` get the **Admin** role automatically. Admins can promote users or deactivate them.
 
+### Public pages
+- **Home / About** page: features, how it works, and featured courses (no login needed). Also **Login** and **Registration**.
+
 ### Student
-- **Dashboard**: enrolled courses, lessons completed, pending assignments, average grade, overall progress and upcoming deadlines.
+- **Dashboard**: enrolled courses, completed courses, modules completed, pending assignments, average marks, overall progress, upcoming deadlines and **recent activity**.
 - **Course catalog** with search and category filter.
 - **Enroll and leave** courses.
-- **Lesson player** with embedded YouTube/Vimeo video, written content, previous/next navigation and **mark as complete**.
-- **Progress tracking** per course and overall.
-- **Assignments**: submit a written answer and/or a link, resubmit until graded, then see the grade and feedback.
+- **Course modules** in order, each with notes, an embedded YouTube/Vimeo video and **learning materials** (notes, PDF, video, source code, reference and practice-exercise links), previous/next navigation and **mark as complete**.
+- **Progress tracking**: percentage, progress bar and status (Not started / In progress / Completed) per course and overall.
+- **Assignments**: see instructions, deadline and maximum marks. Submit text and/or a GitHub, Drive or project link. Update the submission until it's graded. See marks, feedback and status (Submitted / Graded / Resubmission requested / Missed / Late).
 
 ### Instructor
-- **Course management**: create, edit and delete courses. Set title, description, category, level, thumbnail, and draft or published status.
-- **Lesson management**: add, edit, reorder (↑/↓) and delete lessons.
+- **Course management**: create, edit and delete courses. Set title, description, category, instructor, duration, difficulty, image, and draft or published status.
+- **Module management**: add, edit, reorder (↑/↓) and delete modules, and attach learning materials.
 - **Assignment management**: set a due date and max points.
-- **Grading**: view every submission, give a grade and written feedback.
+- **Submission review**: a central Submissions page with Awaiting review / Graded / Resubmission tabs. Award marks with feedback, or request a resubmission. Late submissions are flagged.
 - **Student roster** showing each enrolled student's progress.
 - Dashboard with course, student and enrollment stats plus a "waiting for grading" queue.
 
 ### Admin
-- User management: search users, change roles, activate or deactivate accounts.
+- **Manage users**: search and filter students, instructors and admins. See enrollment and course counts, change roles, activate or deactivate accounts.
 - Platform-wide statistics. Admins can also manage any course.
 
 ---
@@ -89,7 +106,7 @@ Students enroll in courses, work through lessons, track their progress and submi
 ```
 
 ### Database schema
-7 tables: `users`, `courses`, `lessons`, `enrollments`, `lesson_progress`, `assignments`, `submissions`. See [`database/schema.sql`](database/schema.sql) and the [ER diagram](database/ER-diagram.md).
+7 tables: `users`, `courses`, `lessons` (course **modules**), `enrollments`, `lesson_progress`, `assignments`, `submissions`. Enrollment progress and status are **calculated** from `lesson_progress`, so they never go out of sync. See [`database/schema.sql`](database/schema.sql) and the [ER diagram](database/ER-diagram.md).
 
 ---
 
@@ -100,10 +117,11 @@ Node.js 18+, a [Firebase](https://console.firebase.google.com) project, and a [S
 
 ### 1. Supabase
 1. Create a project, open **SQL Editor**, paste [`database/schema.sql`](database/schema.sql) and run it.
+   Then (optionally) run [`database/seed.sql`](database/seed.sql) for sample courses, modules and assignments.
 2. Copy the **Project URL** and the **service_role key** from Project Settings → API.
 
 ### 2. Firebase
-1. Create a project, then go to **Authentication → Sign-in method** and enable **Google**.
+1. Create a project, then go to **Authentication → Sign-in method** and enable **Email/Password** and **Google**.
 2. **Project settings → General → Add web app**, then copy the config values (for the client).
 3. **Project settings → Service accounts → Generate new private key**, then copy `project_id`, `client_email` and `private_key` (for the server).
 4. Add your deployed frontend domain under **Authentication → Settings → Authorized domains**.
@@ -138,6 +156,19 @@ See [`docs/API.md`](docs/API.md).
 
 ## 🎬 Demo video
 See [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) for a 60-second walkthrough script.
+
+## 🖼️ Screenshots
+Put screenshots in [`docs/screenshots/`](docs/screenshots/) and link them here, for example:
+
+| Home | Student dashboard | Module view |
+|---|---|---|
+| ![](docs/screenshots/home.png) | ![](docs/screenshots/student-dashboard.png) | ![](docs/screenshots/module.png) |
+
+## ✅ Testing
+See [`docs/TESTING.md`](docs/TESTING.md) for the test checklist.
+
+## 🔭 Future improvements
+Quizzes, certificate generation, email notifications, a discussion forum, course ratings, dark mode, file uploads (Supabase Storage) and analytics charts.
 
 ## 🔐 Security highlights
 - Firebase ID tokens are checked on **every** API request. Tokens are short-lived and refreshed automatically.

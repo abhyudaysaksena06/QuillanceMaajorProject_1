@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { api } from '../api';
 import Loader from '../components/Loader';
 import ProgressBar from '../components/ProgressBar';
-import { toEmbedUrl } from '../utils';
+import { toEmbedUrl, RESOURCE_TYPES } from '../utils';
 
 export default function LessonView() {
   const { courseId, lessonId } = useParams();
@@ -17,7 +17,7 @@ export default function LessonView() {
   const idx = course.lessons.findIndex((l) => l.id === lessonId);
   const lesson = course.lessons[idx];
   if (!lesson || (!course.is_enrolled && !course.can_manage)) {
-    return <div className="empty card">Lesson unavailable. <Link to={`/courses/${courseId}`}>Back to course</Link></div>;
+    return <div className="empty card">Module unavailable. <Link to={`/courses/${courseId}`}>Back to course</Link></div>;
   }
   const done = course.completed_lesson_ids.includes(lessonId);
   const prev = course.lessons[idx - 1];
@@ -30,7 +30,7 @@ export default function LessonView() {
       const ids = done ? course.completed_lesson_ids.filter((x) => x !== lessonId) : [...course.completed_lesson_ids, lessonId];
       setCourse({ ...course, completed_lesson_ids: ids, progress: Math.round((ids.length / course.lessons.length) * 100) });
       if (!done) {
-        toast.success('Lesson completed!');
+        toast.success('Module completed!');
         if (next) navigate(`/courses/${courseId}/lessons/${next.id}`);
       }
     } catch (e) { toast.error(e.message); }
@@ -51,14 +51,24 @@ export default function LessonView() {
         </ol>
       </aside>
       <article className="card lesson-content">
-        <p className="muted small">Lesson {idx + 1} of {course.lessons.length}</p>
+        <p className="muted small">Module {idx + 1} of {course.lessons.length}</p>
         <h1>{lesson.title}</h1>
         {embed ? (
           <div className="video"><iframe src={embed} title={lesson.title} allowFullScreen /></div>
         ) : lesson.video_url ? (
           <p><a href={lesson.video_url} target="_blank" rel="noreferrer">▶ Watch video</a></p>
         ) : null}
-        <div className="prose pre-wrap">{lesson.content || 'No written content for this lesson.'}</div>
+        <div className="prose pre-wrap">{lesson.content || 'No written notes for this module.'}</div>
+        {lesson.resources?.length > 0 && (
+          <div className="resources">
+            <h3>Learning materials</h3>
+            {lesson.resources.map((r, i) => (
+              <a key={i} href={r.url} target="_blank" rel="noreferrer" className="resource">
+                <span className="tag tag-muted">{RESOURCE_TYPES[r.type] || '🔗 Link'}</span>{r.label}
+              </a>
+            ))}
+          </div>
+        )}
         <div className="lesson-nav">
           {prev ? <Link className="btn btn-ghost" to={`/courses/${courseId}/lessons/${prev.id}`}>← Previous</Link> : <span />}
           {course.is_enrolled && (

@@ -4,10 +4,10 @@ import toast from 'react-hot-toast';
 import { api } from '../api';
 import Loader from '../components/Loader';
 import ProgressBar from '../components/ProgressBar';
-import { formatDate, toLocalInput } from '../utils';
+import { formatDate, toLocalInput, RESOURCE_TYPES } from '../utils';
 
-const emptyCourse = { title: '', description: '', category: '', level: 'Beginner', thumbnail_url: '', published: false };
-const emptyLesson = { title: '', content: '', video_url: '', duration_minutes: '' };
+const emptyCourse = { title: '', description: '', category: '', level: 'Beginner', thumbnail_url: '', duration: '', published: false };
+const emptyLesson = { title: '', content: '', video_url: '', duration_minutes: '', resources: [] };
 const emptyAssignment = { title: '', description: '', due_date: '', max_points: 100 };
 
 export default function CourseEditor() {
@@ -40,7 +40,7 @@ export default function CourseEditor() {
     try {
       if (isNew) {
         const c = await api('/courses', { method: 'POST', body: form });
-        toast.success('Course created — now add lessons');
+        toast.success('Course created. Now add modules.');
         navigate(`/teach/${c.id}`);
       } else {
         await api(`/courses/${id}`, { method: 'PATCH', body: form });
@@ -60,11 +60,16 @@ export default function CourseEditor() {
 
   const saveLesson = async (e) => {
     e.preventDefault();
-    const body = { ...lesson, duration_minutes: lesson.duration_minutes ? Number(lesson.duration_minutes) : null };
+    const { id: lessonId, course_id: _c, created_at: _t, ...fields } = lesson;
+    const body = {
+      ...fields,
+      duration_minutes: lesson.duration_minutes ? Number(lesson.duration_minutes) : null,
+      resources: (lesson.resources || []).filter((r) => r.url.trim()),
+    };
     try {
-      if (lesson.id) await api(`/lessons/${lesson.id}`, { method: 'PATCH', body });
+      if (lessonId) await api(`/lessons/${lessonId}`, { method: 'PATCH', body });
       else await api('/lessons', { method: 'POST', body: { ...body, course_id: id } });
-      toast.success('Lesson saved');
+      toast.success('Module saved');
       setLesson(null);
       load();
     } catch (err) { toast.error(err.message); }
@@ -82,7 +87,7 @@ export default function CourseEditor() {
   };
 
   const deleteLesson = async (l) => {
-    if (!confirm(`Delete lesson "${l.title}"?`)) return;
+    if (!confirm(`Delete module "${l.title}"?`)) return;
     await api(`/lessons/${l.id}`, { method: 'DELETE' });
     load();
   };
@@ -118,8 +123,8 @@ export default function CourseEditor() {
 
       {!isNew && (
         <div className="tabs">
-          {['details', 'lessons', 'assignments', 'students'].map((t) => (
-            <button key={t} className={tab === t ? 'active' : ''} onClick={() => setTab(t)}>{t[0].toUpperCase() + t.slice(1)}</button>
+          {[['details', 'Details'], ['lessons', 'Modules'], ['assignments', 'Assignments'], ['students', 'Students & progress']].map(([t, label]) => (
+            <button key={t} className={tab === t ? 'active' : ''} onClick={() => setTab(t)}>{label}</button>
           ))}
         </div>
       )}
@@ -130,6 +135,7 @@ export default function CourseEditor() {
           <label>Description<textarea className="input" rows={5} value={form.description} onChange={set('description')} /></label>
           <div className="form-row">
             <label>Category<input className="input" value={form.category} onChange={set('category')} placeholder="e.g. Web Development" /></label>
+            <label>Duration<input className="input" value={form.duration} onChange={set('duration')} placeholder="e.g. 6 weeks" /></label>
             <label>Level
               <select className="input" value={form.level} onChange={set('level')}>
                 <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
@@ -147,17 +153,34 @@ export default function CourseEditor() {
 
       {tab === 'lessons' && (
         <section className="card">
-          <div className="card-header"><h2>Lessons</h2><button className="btn btn-primary btn-sm" onClick={() => setLesson(emptyLesson)}>+ Add lesson</button></div>
+          <div className="card-header"><h2>Modules</h2><button className="btn btn-primary btn-sm" onClick={() => setLesson(emptyLesson)}>+ Add module</button></div>
           {lesson && (
             <form className="form inset" onSubmit={saveLesson}>
-              <label>Title *<input className="input" value={lesson.title} onChange={(e) => setLesson({ ...lesson, title: e.target.value })} required /></label>
+              <label>Module title *<input className="input" value={lesson.title} onChange={(e) => setLesson({ ...lesson, title: e.target.value })} required /></label>
               <div className="form-row">
                 <label>Video URL (YouTube / Vimeo)<input className="input" type="url" value={lesson.video_url || ''} onChange={(e) => setLesson({ ...lesson, video_url: e.target.value })} /></label>
                 <label>Duration (min)<input className="input" type="number" min={0} value={lesson.duration_minutes || ''} onChange={(e) => setLesson({ ...lesson, duration_minutes: e.target.value })} /></label>
               </div>
-              <label>Content<textarea className="input" rows={8} value={lesson.content || ''} onChange={(e) => setLesson({ ...lesson, content: e.target.value })} /></label>
+              <label>Description &amp; notes<textarea className="input" rows={8} value={lesson.content || ''} onChange={(e) => setLesson({ ...lesson, content: e.target.value })} /></label>
+              <div className="resource-editor">
+                <strong className="small">Learning materials (notes, PDFs, videos, source code, references, exercises)</strong>
+                {(lesson.resources || []).map((r, i) => {
+                  const update = (k, v) => setLesson({ ...lesson, resources: lesson.resources.map((x, j) => (j === i ? { ...x, [k]: v } : x)) });
+                  return (
+                    <div key={i} className="resource-row">
+                      <select className="input w-auto" value={r.type} onChange={(e) => update('type', e.target.value)}>
+                        {Object.entries(RESOURCE_TYPES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                      </select>
+                      <input className="input" placeholder="Label" value={r.label} onChange={(e) => update('label', e.target.value)} />
+                      <input className="input" type="url" placeholder="https://" value={r.url} onChange={(e) => update('url', e.target.value)} />
+                      <button type="button" className="icon-btn" title="Remove" onClick={() => setLesson({ ...lesson, resources: lesson.resources.filter((_, j) => j !== i) })}>✕</button>
+                    </div>
+                  );
+                })}
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setLesson({ ...lesson, resources: [...(lesson.resources || []), { type: 'pdf', label: '', url: '' }] })}>+ Add material</button>
+              </div>
               <div className="form-actions">
-                <button className="btn btn-primary">Save lesson</button>
+                <button className="btn btn-primary">Save module</button>
                 <button type="button" className="btn btn-ghost" onClick={() => setLesson(null)}>Cancel</button>
               </div>
             </form>
@@ -173,7 +196,7 @@ export default function CourseEditor() {
                 <button className="btn btn-ghost btn-sm danger" onClick={() => deleteLesson(l)}>Delete</button>
               </li>
             ))}
-            {!course.lessons.length && <p className="muted">No lessons yet.</p>}
+            {!course.lessons.length && <p className="muted">No modules yet.</p>}
           </ol>
         </section>
       )}
@@ -215,17 +238,18 @@ export default function CourseEditor() {
         <section className="card table-wrap">
           <h2>Enrolled students ({students.length})</h2>
           <table className="table">
-            <thead><tr><th>Student</th><th>Enrolled</th><th>Lessons</th><th className="w-40">Progress</th></tr></thead>
+            <thead><tr><th>Student</th><th>Enrolled</th><th>Modules</th><th>Status</th><th className="w-40">Progress</th></tr></thead>
             <tbody>
               {students.map((s) => (
                 <tr key={s.id}>
                   <td><strong>{s.name}</strong><div className="muted small">{s.email}</div></td>
                   <td>{formatDate(s.enrolled_at)}</td>
                   <td>{s.completed_lessons}/{course.lessons.length}</td>
+                  <td>{s.progress === 100 ? <span className="badge badge-success">Completed</span> : s.progress > 0 ? <span className="badge badge-info">In progress</span> : <span className="badge">Not started</span>}</td>
                   <td><ProgressBar value={s.progress} /></td>
                 </tr>
               ))}
-              {!students.length && <tr><td colSpan={4} className="center muted">No students enrolled yet.</td></tr>}
+              {!students.length && <tr><td colSpan={5} className="center muted">No students enrolled yet.</td></tr>}
             </tbody>
           </table>
         </section>

@@ -11,6 +11,7 @@ import assignmentRoutes from './routes/assignments.js';
 import dashboardRoutes from './routes/dashboard.js';
 import adminRoutes from './routes/admin.js';
 import { authenticate } from './middleware/auth.js';
+import { supabase } from './config/supabase.js';
 
 const app = express();
 
@@ -20,6 +21,18 @@ app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
+
+// Public catalog preview for the home page (no login needed).
+app.get('/api/public/courses', async (_req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('courses')
+      .select('id, title, description, category, level, duration, thumbnail_url, instructor:users!courses_instructor_id_fkey(name), lessons(count)')
+      .eq('published', true).order('created_at', { ascending: false }).limit(6);
+    if (error) throw error;
+    res.json(data);
+  } catch (err) { next(err); }
+});
 
 // Every route below requires a valid Firebase ID token.
 app.use('/api', authenticate);

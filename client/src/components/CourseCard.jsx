@@ -18,6 +18,7 @@ export default function CourseCard({ course, progress }) {
         <div className="course-meta">
           {course.category && <span className="tag">{course.category}</span>}
           <span className="tag tag-muted">{course.level}</span>
+          {course.duration && <span className="tag tag-muted">⏱ {course.duration}</span>}
         </div>
         <h3>{course.title}</h3>
         {course.instructor && <p className="muted small">by {course.instructor.name}</p>}
@@ -25,7 +26,7 @@ export default function CourseCard({ course, progress }) {
           <ProgressBar value={progress} />
         ) : (
           <p className="muted small">
-            {lessonCount ?? 0} lessons{course.enrollments ? ` · ${course.enrollments[0]?.count ?? 0} students` : ''}
+            {lessonCount ?? 0} modules{course.enrollments ? ` · ${course.enrollments[0]?.count ?? 0} students` : ''}
           </p>
         )}
       </div>

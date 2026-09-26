@@ -13,7 +13,7 @@ export default function MyLearning() {
   const filtered = courses.filter((c) => (tab === 'completed' ? c.progress === 100 : c.progress < 100));
   return (
     <>
-      <div className="page-header"><div><h1>My Learning</h1><p className="muted">Pick up where you left off.</p></div></div>
+      <div className="page-header"><div><h1>My Courses</h1><p className="muted">Pick up where you left off.</p></div></div>
       <div className="tabs">
         <button className={tab === 'progress' ? 'active' : ''} onClick={() => setTab('progress')}>In progress ({courses.filter((c) => c.progress < 100).length})</button>
         <button className={tab === 'completed' ? 'active' : ''} onClick={() => setTab('completed')}>Completed ({courses.filter((c) => c.progress === 100).length})</button>

@@ -11,12 +11,12 @@ export default function Teach() {
   return (
     <>
       <div className="page-header">
-        <div><h1>My Courses</h1><p className="muted">Create and manage your courses.</p></div>
-        <Link to="/teach/new" className="btn btn-primary">+ New course</Link>
+        <div><h1>Manage Courses</h1><p className="muted">Create courses, organise modules and publish assignments.</p></div>
+        <div className="row-actions"><Link to="/teach/submissions" className="btn btn-ghost">Review submissions</Link><Link to="/teach/new" className="btn btn-primary">+ New course</Link></div>
       </div>
       <div className="card table-wrap">
         <table className="table">
-          <thead><tr><th>Course</th><th>Status</th><th>Lessons</th><th>Assignments</th><th>Students</th><th /></tr></thead>
+          <thead><tr><th>Course</th><th>Status</th><th>Modules</th><th>Assignments</th><th>Students</th><th /></tr></thead>
           <tbody>
             {courses.map((c) => (
               <tr key={c.id}>

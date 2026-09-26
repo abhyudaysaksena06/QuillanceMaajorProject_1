@@ -7,6 +7,8 @@ import CourseCard from '../components/CourseCard';
 import ProgressBar from '../components/ProgressBar';
 import { formatDate, relativeDue } from '../utils';
 
+const activityIcon = { module: '✅', submission: '📤', grade: '🏆' };
+
 function Stat({ icon, label, value, accent }) {
   return (
     <div className={`stat card accent-${accent}`}>
@@ -42,9 +44,10 @@ export default function Dashboard() {
         <>
           <div className="stats-grid">
             <Stat icon="📚" label="Enrolled courses" value={s.enrolled_courses} accent="indigo" />
-            <Stat icon="✅" label={`Lessons completed of ${s.total_lessons}`} value={s.completed_lessons} accent="green" />
+            <Stat icon="🎓" label="Completed courses" value={s.completed_courses} accent="green" />
+            <Stat icon="✅" label={`Modules completed of ${s.total_lessons}`} value={s.completed_lessons} accent="indigo" />
             <Stat icon="📝" label="Pending assignments" value={s.pending_assignments} accent="amber" />
-            <Stat icon="🏆" label="Average grade" value={s.average_grade == null ? '—' : `${s.average_grade}%`} accent="pink" />
+            <Stat icon="🏆" label="Average marks" value={s.average_grade == null ? '—' : `${s.average_grade}%`} accent="pink" />
           </div>
           <div className="grid-2">
             <section className="card">
@@ -73,6 +76,18 @@ export default function Dashboard() {
               </div>
             </section>
           </div>
+          <section className="card">
+            <h2>Recent activity</h2>
+            <div className="list">
+              {data.recent_activity.map((a, i) => (
+                <Link key={i} to={a.link} className="list-row">
+                  <span>{activityIcon[a.type]} {a.text}{a.course && <span className="muted small"> · {a.course}</span>}</span>
+                  <span className="muted small">{formatDate(a.at)}</span>
+                </Link>
+              ))}
+              {!data.recent_activity.length && <p className="muted">No activity yet. Start a module to see it here.</p>}
+            </div>
+          </section>
           {courses.length > 0 && (
             <>
               <h2 className="section-title">Continue learning</h2>
@@ -95,7 +110,7 @@ export default function Dashboard() {
           <section className="card">
             <div className="card-header">
               <h2>Submissions awaiting grading</h2>
-              <Link to="/teach" className="btn btn-primary btn-sm">Manage courses</Link>
+              <Link to="/teach/submissions" className="btn btn-primary btn-sm">Review submissions</Link>
             </div>
             <div className="list">
               {data.pending_submissions.map((p) => (

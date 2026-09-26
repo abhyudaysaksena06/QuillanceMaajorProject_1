@@ -5,7 +5,7 @@ import { api } from '../api';
 import Loader from '../components/Loader';
 import ProgressBar from '../components/ProgressBar';
 import Avatar from '../components/Avatar';
-import { formatDate, relativeDue } from '../utils';
+import { formatDate, submissionBadge } from '../utils';
 
 export default function CourseDetail() {
   const { id } = useParams();
@@ -49,6 +49,8 @@ export default function CourseDetail() {
           <div className="course-meta">
             {course.category && <span className="tag">{course.category}</span>}
             <span className="tag tag-muted">{course.level}</span>
+            {course.duration && <span className="tag tag-muted">⏱ {course.duration}</span>}
+            {course.is_enrolled && <span className={`badge ${course.progress === 100 ? 'badge-success' : 'badge-info'}`}>{course.progress === 100 ? 'Completed' : 'In progress'}</span>}
             {!course.published && <span className="badge badge-warning">Draft</span>}
           </div>
           <h1>{course.title}</h1>
@@ -56,7 +58,7 @@ export default function CourseDetail() {
           <div className="instructor-row">
             <Avatar user={course.instructor} size={32} />
             <span>{course.instructor?.name}</span>
-            <span className="muted">· {course.lessons.length} lessons · {course.student_count} students</span>
+            <span className="muted">· {course.lessons.length} modules · {course.student_count} students</span>
           </div>
         </div>
         <div className="hero-actions">
@@ -76,7 +78,7 @@ export default function CourseDetail() {
 
       <div className="grid-2">
         <section className="card">
-          <h2>Course content</h2>
+          <h2>Course modules</h2>
           <ol className="lesson-list">
             {course.lessons.map((l, i) => (
               <li key={l.id} className={done.has(l.id) ? 'done' : ''}>
@@ -85,7 +87,7 @@ export default function CourseDetail() {
                 {l.duration_minutes && <span className="muted small">{l.duration_minutes} min</span>}
               </li>
             ))}
-            {!course.lessons.length && <p className="muted">No lessons yet.</p>}
+            {!course.lessons.length && <p className="muted">No modules yet.</p>}
           </ol>
         </section>
         <section className="card">
@@ -95,10 +97,10 @@ export default function CourseDetail() {
             {course.assignments.map((a) => (
               <Link key={a.id} to={`/assignments/${a.id}`} className="list-row">
                 <div><strong>{a.title}</strong><div className="muted small">Due {formatDate(a.due_date)} · {a.max_points} pts</div></div>
-                {course.can_manage ? <span className="badge">Manage</span>
-                  : a.submission?.grade != null ? <span className="badge badge-success">{a.submission.grade}/{a.max_points}</span>
-                  : a.submission ? <span className="badge badge-info">Submitted</span>
-                  : <span className="badge badge-warning">{relativeDue(a.due_date)}</span>}
+                {course.can_manage ? <span className="badge">Manage</span> : (() => {
+                  const b = submissionBadge(a.submission, a.max_points, a.due_date);
+                  return <span className={`badge ${b.cls}`}>{b.text}</span>;
+                })()}
               </Link>
             ))}
             {canOpen && !course.assignments.length && <p className="muted">No assignments for this course.</p>}

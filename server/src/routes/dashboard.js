@@ -9,15 +9,24 @@ router.get('/', asyncHandler(async (req, res) => {
 
   if (user.role === 'student') {
     const courseIds = unwrap(await supabase.from('enrollments').select('course_id').eq('user_id', user.id)).map((e) => e.course_id);
-    const lessons = courseIds.length ? unwrap(await supabase.from('lessons').select('id').in('course_id', courseIds)) : [];
-    const { count: completedLessons } = await supabase.from('lesson_progress')
-      .select('id', { count: 'exact', head: true }).eq('user_id', user.id);
+    const lessons = courseIds.length ? unwrap(await supabase.from('lessons').select('id, course_id').in('course_id', courseIds)) : [];
+    const progressRows = unwrap(await supabase.from('lesson_progress')
+      .select('completed_at, lesson:lessons(id, title, course_id, course:courses(id,title))')
+      .eq('user_id', user.id).order('completed_at', { ascending: false }));
+    const doneIds = new Set(progressRows.map((p) => p.lesson?.id));
+    const completedLessons = lessons.filter((l) => doneIds.has(l.id)).length;
+    const completedCourses = courseIds.filter((cid) => {
+      const ls = lessons.filter((l) => l.course_id === cid);
+      return ls.length > 0 && ls.every((l) => doneIds.has(l.id));
+    }).length;
     const assignments = courseIds.length
       ? unwrap(await supabase.from('assignments').select('id, title, due_date, course_id, course:courses(title)').in('course_id', courseIds))
       : [];
-    const subs = unwrap(await supabase.from('submissions').select('assignment_id, grade').eq('student_id', user.id));
-    const submitted = new Set(subs.map((s) => s.assignment_id));
-    const graded = subs.filter((s) => s.grade != null);
+    const subs = unwrap(await supabase.from('submissions')
+      .select('assignment_id, grade, status, submitted_at, graded_at, assignment:assignments(id,title)')
+      .eq('student_id', user.id));
+    const submitted = new Set(subs.filter((s) => s.status !== 'resubmit').map((s) => s.assignment_id));
+    const graded = subs.filter((s) => s.status === 'graded' && s.grade != null);
     const maxById = Object.fromEntries(
       (graded.length ? unwrap(await supabase.from('assignments').select('id,max_points').in('id', graded.map((g) => g.assignment_id))) : [])
         .map((a) => [a.id, a.max_points])
@@ -32,13 +41,26 @@ router.get('/', asyncHandler(async (req, res) => {
       .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
       .slice(0, 5);
 
+    // Recent activity: modules completed, assignments submitted and graded.
+    const activity = [
+      ...progressRows.filter((p) => p.lesson).map((p) => ({
+        type: 'module', at: p.completed_at, text: `Completed module "${p.lesson.title}"`, course: p.lesson.course?.title, link: `/courses/${p.lesson.course_id}/lessons/${p.lesson.id}` })),
+      ...subs.filter((s) => s.assignment).map((s) => ({
+        type: 'submission', at: s.submitted_at, text: `Submitted "${s.assignment.title}"`, link: `/assignments/${s.assignment_id}` })),
+      ...subs.filter((s) => s.assignment && s.graded_at).map((s) => ({
+        type: 'grade', at: s.graded_at, link: `/assignments/${s.assignment_id}`,
+        text: s.status === 'graded' ? `"${s.assignment.title}" graded: ${s.grade} marks` : `Resubmission requested for "${s.assignment.title}"` })),
+    ].sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 6);
+
     return res.json({
       role: 'student',
+      recent_activity: activity,
       stats: {
         enrolled_courses: courseIds.length,
-        completed_lessons: completedLessons || 0,
+        completed_courses: completedCourses,
+        completed_lessons: completedLessons,
         total_lessons: lessons.length,
-        overall_progress: lessons.length ? Math.round(((completedLessons || 0) / lessons.length) * 100) : 0,
+        overall_progress: lessons.length ? Math.round((completedLessons / lessons.length) * 100) : 0,
         pending_assignments: assignments.filter((a) => !submitted.has(a.id)).length,
         average_grade: avg,
       },
@@ -56,7 +78,7 @@ router.get('/', asyncHandler(async (req, res) => {
   const pending = assignments.length
     ? unwrap(await supabase.from('submissions')
         .select('id, submitted_at, assignment:assignments(id,title,course:courses(title)), student:users(name)')
-        .in('assignment_id', assignments.map((a) => a.id)).is('grade', null)
+        .in('assignment_id', assignments.map((a) => a.id)).eq('status', 'submitted')
         .order('submitted_at', { ascending: false }))
     : [];
 

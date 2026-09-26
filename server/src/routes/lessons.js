@@ -4,7 +4,17 @@ import { requireRole } from '../middleware/auth.js';
 import { asyncHandler, httpError, unwrap, pick, assertCanManage, isEnrolled } from './helpers.js';
 
 const router = Router();
-const FIELDS = ['title', 'content', 'video_url', 'position', 'duration_minutes'];
+const FIELDS = ['title', 'content', 'video_url', 'position', 'duration_minutes', 'resources'];
+const RESOURCE_TYPES = ['notes', 'pdf', 'video', 'code', 'reference', 'exercise'];
+
+function validateResources(body) {
+  if (body.resources === undefined) return;
+  if (!Array.isArray(body.resources)) throw httpError(400, 'resources must be an array');
+  body.resources = body.resources.map((r) => {
+    if (!r?.url || !/^https?:\/\//i.test(r.url)) throw httpError(400, 'Each resource needs a valid http(s) URL');
+    return { type: RESOURCE_TYPES.includes(r.type) ? r.type : 'reference', label: String(r.label || r.url).slice(0, 200), url: r.url };
+  });
+}
 
 async function getLesson(id) {
   const lesson = unwrap(await supabase.from('lessons').select('*').eq('id', id).maybeSingle());
@@ -17,6 +27,7 @@ router.post('/', requireRole('instructor', 'admin'), asyncHandler(async (req, re
   if (!course_id) throw httpError(400, 'course_id is required');
   if (!req.body.title?.trim()) throw httpError(400, 'Title is required');
   await assertCanManage(req.user, course_id);
+  validateResources(req.body);
 
   let position = req.body.position;
   if (position === undefined) {
@@ -32,6 +43,7 @@ router.post('/', requireRole('instructor', 'admin'), asyncHandler(async (req, re
 router.patch('/:id', requireRole('instructor', 'admin'), asyncHandler(async (req, res) => {
   const lesson = await getLesson(req.params.id);
   await assertCanManage(req.user, lesson.course_id);
+  validateResources(req.body);
   const updated = unwrap(
     await supabase.from('lessons').update(pick(req.body, FIELDS)).eq('id', lesson.id).select().single()
   );

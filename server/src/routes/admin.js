@@ -7,7 +7,7 @@ const router = Router();
 router.use(requireRole('admin'));
 
 router.get('/users', asyncHandler(async (_req, res) => {
-  res.json(unwrap(await supabase.from('users').select('*').order('created_at', { ascending: false })));
+  res.json(unwrap(await supabase.from('users').select('*, enrollments(count), courses(count)').order('created_at', { ascending: false })));
 }));
 
 router.patch('/users/:id', asyncHandler(async (req, res) => {

@@ -1,7 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
+import Home from './pages/Home';
 import Login from './pages/Login';
+import Submissions from './pages/Submissions';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
 import Courses from './pages/Courses';
@@ -20,7 +22,9 @@ const staff = ['instructor', 'admin'];
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Login mode="register" />} />
       <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
       <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
@@ -31,12 +35,13 @@ export default function App() {
         <Route path="/assignments" element={<Assignments />} />
         <Route path="/assignments/:id" element={<AssignmentDetail />} />
         <Route path="/teach" element={<ProtectedRoute roles={staff}><Teach /></ProtectedRoute>} />
+        <Route path="/teach/submissions" element={<ProtectedRoute roles={staff}><Submissions /></ProtectedRoute>} />
         <Route path="/teach/new" element={<ProtectedRoute roles={staff}><CourseEditor /></ProtectedRoute>} />
         <Route path="/teach/:id" element={<ProtectedRoute roles={staff}><CourseEditor /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute roles={['admin']}><Admin /></ProtectedRoute>} />
         <Route path="/profile" element={<Profile />} />
       </Route>
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

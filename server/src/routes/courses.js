@@ -6,7 +6,7 @@ import {
 } from './helpers.js';
 
 const router = Router();
-const COURSE_FIELDS = ['title', 'description', 'category', 'level', 'thumbnail_url', 'published'];
+const COURSE_FIELDS = ['title', 'description', 'category', 'level', 'thumbnail_url', 'duration', 'published'];
 const LEVELS = ['Beginner', 'Intermediate', 'Advanced'];
 
 function validateCourse(body, partial = false) {
@@ -95,7 +95,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
 
   let submissions = [];
   if (enrolled && assignments.length) {
-    submissions = unwrap(await supabase.from('submissions').select('assignment_id, grade, submitted_at')
+    submissions = unwrap(await supabase.from('submissions').select('assignment_id, grade, status, submitted_at')
       .eq('student_id', req.user.id).in('assignment_id', assignments.map((a) => a.id)));
   }
 

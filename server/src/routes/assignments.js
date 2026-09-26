@@ -24,6 +24,22 @@ router.get('/', asyncHandler(async (req, res) => {
   res.json(assignments.map((a) => ({ ...a, submission: subs.find((s) => s.assignment_id === a.id) || null })));
 }));
 
+// All submissions across the courses the instructor manages (admins: everything).
+router.get('/submissions/all', requireRole('instructor', 'admin'), asyncHandler(async (req, res) => {
+  let coursesQuery = supabase.from('courses').select('id');
+  if (req.user.role !== 'admin') coursesQuery = coursesQuery.eq('instructor_id', req.user.id);
+  const courseIds = unwrap(await coursesQuery).map((c) => c.id);
+  if (!courseIds.length) return res.json([]);
+  const assignmentIds = unwrap(await supabase.from('assignments').select('id').in('course_id', courseIds)).map((a) => a.id);
+  if (!assignmentIds.length) return res.json([]);
+  let query = supabase.from('submissions')
+    .select('*, student:users(id,name,email,avatar_url), assignment:assignments(id,title,max_points,due_date,course:courses(id,title))')
+    .in('assignment_id', assignmentIds)
+    .order('submitted_at', { ascending: false });
+  if (req.query.status) query = query.eq('status', req.query.status);
+  res.json(unwrap(await query));
+}));
+
 router.get('/:id', asyncHandler(async (req, res) => {
   const assignment = await getAssignment(req.params.id);
   const course = await getCourse(assignment.course_id);
@@ -74,11 +90,11 @@ router.post('/:id/submit', asyncHandler(async (req, res) => {
 
   const existing = unwrap(await supabase.from('submissions').select('*')
     .eq('assignment_id', a.id).eq('student_id', req.user.id).maybeSingle());
-  if (existing?.grade != null) throw httpError(400, 'This submission has already been graded');
+  if (existing?.status === 'graded') throw httpError(400, 'This submission has already been graded');
 
   const row = unwrap(await supabase.from('submissions').upsert({
     assignment_id: a.id, student_id: req.user.id, content: content || null, link_url: link_url || null,
-    submitted_at: new Date().toISOString(),
+    submitted_at: new Date().toISOString(), status: 'submitted',
   }, { onConflict: 'assignment_id,student_id' }).select().single());
   res.status(201).json(row);
 }));
@@ -90,12 +106,20 @@ router.patch('/submissions/:submissionId/grade', requireRole('instructor', 'admi
   const a = await getAssignment(sub.assignment_id);
   await assertCanManage(req.user, a.course_id);
 
-  const grade = Number(req.body.grade);
-  if (!Number.isFinite(grade) || grade < 0 || grade > a.max_points) {
-    throw httpError(400, `Grade must be between 0 and ${a.max_points}`);
+  // status 'graded' requires marks; 'resubmit' sends it back to the student with feedback.
+  const status = req.body.status || 'graded';
+  if (!['graded', 'resubmit'].includes(status)) throw httpError(400, 'Invalid status');
+  let grade = null;
+  if (status === 'graded') {
+    grade = Number(req.body.grade);
+    if (req.body.grade === '' || !Number.isFinite(grade) || grade < 0 || grade > a.max_points) {
+      throw httpError(400, `Marks must be between 0 and ${a.max_points}`);
+    }
+  } else if (!req.body.feedback?.trim()) {
+    throw httpError(400, 'Add feedback explaining what to fix');
   }
   res.json(unwrap(await supabase.from('submissions').update({
-    grade, feedback: req.body.feedback || null, graded_at: new Date().toISOString(),
+    status, grade, feedback: req.body.feedback || null, graded_at: new Date().toISOString(),
   }).eq('id', sub.id).select().single()));
 }));
 

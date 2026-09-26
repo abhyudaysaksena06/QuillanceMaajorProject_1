@@ -31,6 +31,7 @@ create table if not exists public.courses (
   category       text,
   level          text not null default 'Beginner' check (level in ('Beginner', 'Intermediate', 'Advanced')),
   thumbnail_url  text,
+  duration       text,
   published      boolean not null default false,
   instructor_id  uuid not null,
   created_at     timestamptz not null default now(),
@@ -49,6 +50,7 @@ create table if not exists public.lessons (
   video_url         text,
   position          integer not null default 1,
   duration_minutes  integer,
+  resources         jsonb not null default '[]'::jsonb,  -- [{ "type": "pdf", "label": "...", "url": "..." }]
   created_at        timestamptz not null default now()
 );
 create index if not exists lessons_course_idx on public.lessons(course_id, position);
@@ -92,6 +94,7 @@ create table if not exists public.submissions (
   content        text,
   link_url       text,
   submitted_at   timestamptz not null default now(),
+  status         text not null default 'submitted' check (status in ('submitted', 'graded', 'resubmit')),
   grade          integer check (grade >= 0),
   feedback       text,
   graded_at      timestamptz,
