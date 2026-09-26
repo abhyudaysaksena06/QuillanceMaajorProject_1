@@ -23,7 +23,7 @@ export default function Profile() {
 
   return (
     <>
-      <div className="page-header"><h1>Profile</h1></div>
+      <div className="page-header"><div><p className="eyebrow">[ Account ]</p><h1>Profile</h1></div></div>
       <div className="card profile-card">
         <Avatar user={user} size={72} />
         <div>

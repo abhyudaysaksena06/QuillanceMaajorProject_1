@@ -115,9 +115,9 @@ export default function CourseEditor() {
 
   return (
     <>
-      <Link to="/teach" className="muted small">← My courses</Link>
+      <Link to="/teach" className="back">← Your courses</Link>
       <div className="page-header">
-        <h1>{isNew ? 'Create a new course' : form.title || 'Edit course'}</h1>
+        <div><p className="eyebrow">[ {isNew ? 'New course' : 'Course editor'} ]</p><h1>{isNew ? 'Start a new course' : form.title || 'Edit course'}</h1></div>
         {!isNew && <Link to={`/courses/${id}`} className="btn btn-ghost">View as student</Link>}
       </div>
 
@@ -153,7 +153,7 @@ export default function CourseEditor() {
 
       {tab === 'lessons' && (
         <section className="card">
-          <div className="card-header"><h2>Modules</h2><button className="btn btn-primary btn-sm" onClick={() => setLesson(emptyLesson)}>+ Add module</button></div>
+          <div className="card-header"><h2>Modules</h2><button className="btn btn-primary btn-sm" onClick={() => setLesson(emptyLesson)}>Add module</button></div>
           {lesson && (
             <form className="form inset" onSubmit={saveLesson}>
               <label>Module title *<input className="input" value={lesson.title} onChange={(e) => setLesson({ ...lesson, title: e.target.value })} required /></label>
@@ -173,11 +173,11 @@ export default function CourseEditor() {
                       </select>
                       <input className="input" placeholder="Label" value={r.label} onChange={(e) => update('label', e.target.value)} />
                       <input className="input" type="url" placeholder="https://" value={r.url} onChange={(e) => update('url', e.target.value)} />
-                      <button type="button" className="icon-btn" title="Remove" onClick={() => setLesson({ ...lesson, resources: lesson.resources.filter((_, j) => j !== i) })}>✕</button>
+                      <button type="button" className="icon-btn" title="Remove" onClick={() => setLesson({ ...lesson, resources: lesson.resources.filter((_, j) => j !== i) })}>×</button>
                     </div>
                   );
                 })}
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setLesson({ ...lesson, resources: [...(lesson.resources || []), { type: 'pdf', label: '', url: '' }] })}>+ Add material</button>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setLesson({ ...lesson, resources: [...(lesson.resources || []), { type: 'pdf', label: '', url: '' }] })}>+ material</button>
               </div>
               <div className="form-actions">
                 <button className="btn btn-primary">Save module</button>
@@ -203,7 +203,7 @@ export default function CourseEditor() {
 
       {tab === 'assignments' && (
         <section className="card">
-          <div className="card-header"><h2>Assignments</h2><button className="btn btn-primary btn-sm" onClick={() => setAssignment(emptyAssignment)}>+ Add assignment</button></div>
+          <div className="card-header"><h2>Assignments</h2><button className="btn btn-primary btn-sm" onClick={() => setAssignment(emptyAssignment)}>Add assignment</button></div>
           {assignment && (
             <form className="form inset" onSubmit={saveAssignment}>
               <label>Title *<input className="input" value={assignment.title} onChange={(e) => setAssignment({ ...assignment, title: e.target.value })} required /></label>

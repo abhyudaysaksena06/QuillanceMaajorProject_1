@@ -29,15 +29,14 @@ export default function Admin() {
 
   return (
     <>
-      <div className="page-header"><div><h1>Manage Users</h1><p className="muted">Students, instructors and admins: roles, enrollments and account status.</p></div></div>
+      <div className="page-header"><div><p className="eyebrow">[ Administration ]</p><h1>Users</h1><p className="muted">Students, instructors and admins: roles, enrollments and account status.</p></div></div>
       <div className="stats-grid">
-        <div className="stat card accent-indigo"><span className="stat-icon">👥</span><div><div className="stat-value">{users.length}</div><div className="muted small">Total users</div></div></div>
-        <div className="stat card accent-green"><span className="stat-icon">🎒</span><div><div className="stat-value">{count('student')}</div><div className="muted small">Students</div></div></div>
-        <div className="stat card accent-amber"><span className="stat-icon">🧑‍🏫</span><div><div className="stat-value">{count('instructor')}</div><div className="muted small">Instructors</div></div></div>
-        <div className="stat card accent-pink"><span className="stat-icon">🛡️</span><div><div className="stat-value">{count('admin')}</div><div className="muted small">Admins</div></div></div>
+        {[['Users', users.length], ['Students', count('student')], ['Instructors', count('instructor')], ['Admins', count('admin')]].map(([label, n], i) => (
+          <div key={label} className="stat"><p className="eyebrow"><span>{label}</span><span>0{i + 1}</span></p><div className="stat-value">{n}</div></div>
+        ))}
       </div>
       <div className="toolbar">
-        <input className="input" placeholder="🔍 Search by name or email…" value={filter} onChange={(e) => setFilter(e.target.value)} />
+        <input className="input" placeholder="Search by name or email" value={filter} onChange={(e) => setFilter(e.target.value)} />
         <select className="input w-auto" value={filterRole} onChange={(e) => setFilterRole(e.target.value)}>
           <option value="">All roles</option><option value="student">Students</option><option value="instructor">Instructors</option><option value="admin">Admins</option>
         </select>

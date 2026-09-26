@@ -11,8 +11,8 @@ export default function Teach() {
   return (
     <>
       <div className="page-header">
-        <div><h1>Manage Courses</h1><p className="muted">Create courses, organise modules and publish assignments.</p></div>
-        <div className="row-actions"><Link to="/teach/submissions" className="btn btn-ghost">Review submissions</Link><Link to="/teach/new" className="btn btn-primary">+ New course</Link></div>
+        <div><p className="eyebrow">[ Instructor ]</p><h1>Your courses</h1></div>
+        <div className="row-actions"><Link to="/teach/submissions" className="btn btn-ghost">Review submissions</Link><Link to="/teach/new" className="btn btn-primary">New course</Link></div>
       </div>
       <div className="card table-wrap">
         <table className="table">

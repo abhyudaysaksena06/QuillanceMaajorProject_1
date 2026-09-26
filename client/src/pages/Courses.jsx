@@ -23,19 +23,19 @@ export default function Courses() {
   return (
     <>
       <div className="page-header">
-        <div><h1>Browse Courses</h1><p className="muted">Discover something new to learn.</p></div>
+        <div><p className="eyebrow">[ Catalog · {visible.length} courses ]</p><h1>What will you learn next?</h1></div>
       </div>
       <div className="toolbar">
-        <input className="input" placeholder="🔍 Search courses…" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <input className="input" placeholder="Search by title" value={search} onChange={(e) => setSearch(e.target.value)} />
         <select className="input w-auto" value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="">All categories</option>
           {categories.map((c) => <option key={c}>{c}</option>)}
         </select>
       </div>
       {!courses ? <Loader /> : visible.length ? (
-        <div className="course-grid">{visible.map((c) => <CourseCard key={c.id} course={c} />)}</div>
+        <div className="course-grid">{visible.map((c, i) => <CourseCard key={c.id} course={c} index={i} />)}</div>
       ) : (
-        <div className="empty card">No courses found.</div>
+        <div className="empty card">No courses match that search.</div>
       )}
     </>
   );

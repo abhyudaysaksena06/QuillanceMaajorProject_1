@@ -18,7 +18,7 @@ export default function Submissions() {
 
   return (
     <>
-      <div className="page-header"><div><h1>Submissions</h1><p className="muted">Review work across all your courses and update marks, feedback and status.</p></div></div>
+      <div className="page-header"><div><p className="eyebrow">[ Review ]</p><h1>Submissions</h1><p className="muted">Review work across all your courses and update marks, feedback and status.</p></div></div>
       <div className="tabs">
         {tabs.map(([k, label]) => <button key={k} className={status === k ? 'active' : ''} onClick={() => setStatus(k)}>{label}</button>)}
       </div>
@@ -43,14 +43,14 @@ export default function Submissions() {
                 {open === s.id && (
                   <>
                     {s.content && <p className="pre-wrap">{s.content}</p>}
-                    {s.link_url && <p><a href={s.link_url} target="_blank" rel="noreferrer">🔗 {s.link_url}</a></p>}
+                    {s.link_url && <p><a href={s.link_url} target="_blank" rel="noreferrer">{s.link_url} ↗</a></p>}
                     <GradeForm sub={s} max={s.assignment.max_points} onSaved={() => { setOpen(null); load(); }} />
                   </>
                 )}
               </div>
             );
           })}
-          {!items.length && <div className="empty card">Nothing here. 🎉</div>}
+          {!items.length && <div className="empty card">Nothing in this pile.</div>}
         </div>
       )}
     </>

@@ -12,7 +12,7 @@ export default function Assignments() {
 
   return (
     <>
-      <div className="page-header"><div><h1>Assignments</h1><p className="muted">All assignments across your courses.</p></div></div>
+      <div className="page-header"><div><p className="eyebrow">[ Across all your courses ]</p><h1>Assignments</h1></div></div>
       <div className="card table-wrap">
         <table className="table">
           <thead><tr><th>Assignment</th><th>Course</th><th>Due</th><th>Status</th></tr></thead>

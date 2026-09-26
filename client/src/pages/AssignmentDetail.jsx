@@ -46,10 +46,10 @@ export default function AssignmentDetail() {
 
   return (
     <>
-      <Link to={`/courses/${a.course.id}`} className="muted small">← {a.course.title}</Link>
+      <Link to={`/courses/${a.course.id}`} className="back">← {a.course.title}</Link>
       <div className="card">
         <div className="card-header">
-          <h1>{a.title}</h1>
+          <div><p className="eyebrow">[ Assignment ]</p><h1 style={{ margin: '.3rem 0 0' }}>{a.title}</h1></div>
           <span className={`badge ${a.can_manage ? 'badge-warning' : badge.cls}`}>{a.can_manage ? relativeDue(a.due_date) : badge.text}</span>
         </div>
         <p className="muted small">Deadline {formatDate(a.due_date)} · Maximum marks {a.max_points}</p>
@@ -77,7 +77,7 @@ export default function AssignmentDetail() {
                     </span>
                   </div>
                   {s.content && <p className="pre-wrap">{s.content}</p>}
-                  {s.link_url && <p><a href={s.link_url} target="_blank" rel="noreferrer">🔗 {s.link_url}</a></p>}
+                  {s.link_url && <p><a href={s.link_url} target="_blank" rel="noreferrer">{s.link_url} ↗</a></p>}
                   <GradeForm sub={s} max={a.max_points} onSaved={load} />
                 </div>
               );
@@ -89,9 +89,12 @@ export default function AssignmentDetail() {
         <section className="card">
           <h2>Your submission</h2>
           {sub?.status === 'graded' && (
-            <div className="alert alert-success">
-              <strong>Marks: {sub.grade}/{a.max_points}</strong>
-              {sub.feedback && <p>Feedback: {sub.feedback}</p>}
+            <div className="alert alert-success result-row">
+              <div className="stamp"><div><b>{sub.grade}</b><span>of {a.max_points}</span></div></div>
+              <div>
+                <p className="eyebrow">Marked {formatDate(sub.graded_at)}</p>
+                <p style={{ fontFamily: 'var(--display)', fontSize: '1.2rem', margin: '.3rem 0 0' }}>{sub.feedback || 'No written feedback.'}</p>
+              </div>
             </div>
           )}
           {sub?.status === 'resubmit' && (

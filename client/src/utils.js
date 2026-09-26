@@ -28,7 +28,7 @@ export function toLocalInput(iso) {
 }
 
 export const RESOURCE_TYPES = {
-  notes: '📄 Notes', pdf: '📕 PDF', video: '🎬 Video', code: '💻 Source code', reference: '🔗 Reference', exercise: '🏋️ Practice exercise',
+  notes: 'Notes', pdf: 'PDF', video: 'Video', code: 'Source code', reference: 'Reference', exercise: 'Exercise',
 };
 
 /** Badge for a student's submission state. */
@@ -43,3 +43,10 @@ export function submissionBadge(sub, maxPoints, dueDate) {
 }
 
 export const isLate = (sub, dueDate) => Boolean(sub && dueDate && new Date(sub.submitted_at) > new Date(dueDate));
+
+/** Short, stable pseudo commit hash for the activity log. */
+export function shortHash(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619);
+  return (h >>> 0).toString(16).padStart(8, '0').slice(0, 7);
+}

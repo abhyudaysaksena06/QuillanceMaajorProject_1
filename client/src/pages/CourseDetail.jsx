@@ -25,7 +25,7 @@ export default function CourseDetail() {
     setBusy(true);
     try {
       await api(`/courses/${id}/enroll`, { method: 'POST' });
-      toast.success('Enrolled! Happy learning 🎉');
+      toast.success('Enrolled. Your first module is waiting.');
       await load();
     } catch (e) { toast.error(e.message); }
     setBusy(false);
@@ -44,8 +44,10 @@ export default function CourseDetail() {
 
   return (
     <>
+      <Link to="/courses" className="back">← Catalog</Link>
       <div className="course-hero card">
-        <div>
+        <span className="watermark" aria-hidden>{course.title[0]}</span>
+        <div style={{ position: 'relative' }}>
           <div className="course-meta">
             {course.category && <span className="tag">{course.category}</span>}
             <span className="tag tag-muted">{course.level}</span>
@@ -62,10 +64,13 @@ export default function CourseDetail() {
           </div>
         </div>
         <div className="hero-actions">
-          {course.is_enrolled && <ProgressBar value={course.progress} />}
+          {course.is_enrolled && (
+            <div><p className="eyebrow" style={{ marginBottom: '.5rem' }}>Your progress · {course.completed_lesson_ids.length}/{course.lessons.length}</p>
+              <ProgressBar value={course.progress} total={course.lessons.length} done={course.completed_lesson_ids.length} /></div>
+          )}
           {course.can_manage && <Link className="btn btn-primary" to={`/teach/${course.id}`}>Edit course</Link>}
           {!course.can_manage && !course.is_enrolled && (
-            <button className="btn btn-primary" onClick={enroll} disabled={busy}>{busy ? 'Enrolling…' : 'Enroll now — Free'}</button>
+            <button className="btn btn-primary" onClick={enroll} disabled={busy}>{busy ? 'Enrolling…' : 'Enroll in this course'}</button>
           )}
           {course.is_enrolled && nextLesson && (
             <Link className="btn btn-primary" to={`/courses/${id}/lessons/${nextLesson.id}`}>
@@ -82,8 +87,8 @@ export default function CourseDetail() {
           <ol className="lesson-list">
             {course.lessons.map((l, i) => (
               <li key={l.id} className={done.has(l.id) ? 'done' : ''}>
-                <span className="lesson-index">{done.has(l.id) ? '✓' : i + 1}</span>
-                {canOpen ? <Link to={`/courses/${id}/lessons/${l.id}`}>{l.title}</Link> : <span>{l.title} 🔒</span>}
+                <span className="lesson-index">{String(i + 1).padStart(2, '0')}</span>
+                {canOpen ? <Link to={`/courses/${id}/lessons/${l.id}`}>{l.title}</Link> : <span className="muted">{l.title}</span>}
                 {l.duration_minutes && <span className="muted small">{l.duration_minutes} min</span>}
               </li>
             ))}

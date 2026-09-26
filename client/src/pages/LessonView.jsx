@@ -39,24 +39,24 @@ export default function LessonView() {
   return (
     <div className="lesson-layout">
       <aside className="card lesson-sidebar">
-        <Link to={`/courses/${courseId}`} className="muted small">← {course.title}</Link>
-        {course.is_enrolled && <ProgressBar value={course.progress} />}
+        <Link to={`/courses/${courseId}`} className="back">← {course.title}</Link>
+        {course.is_enrolled && <ProgressBar value={course.progress} total={course.lessons.length} done={course.completed_lesson_ids.length} />}
         <ol className="lesson-list compact">
           {course.lessons.map((l, i) => (
             <li key={l.id} className={`${course.completed_lesson_ids.includes(l.id) ? 'done' : ''} ${l.id === lessonId ? 'current' : ''}`}>
-              <span className="lesson-index">{course.completed_lesson_ids.includes(l.id) ? '✓' : i + 1}</span>
+              <span className="lesson-index">{String(i + 1).padStart(2, '0')}</span>
               <Link to={`/courses/${courseId}/lessons/${l.id}`}>{l.title}</Link>
             </li>
           ))}
         </ol>
       </aside>
       <article className="card lesson-content">
-        <p className="muted small">Module {idx + 1} of {course.lessons.length}</p>
+        <p className="eyebrow">Module {String(idx + 1).padStart(2, '0')} / {String(course.lessons.length).padStart(2, '0')}{lesson.duration_minutes ? ` · ${lesson.duration_minutes} min` : ''}</p>
         <h1>{lesson.title}</h1>
         {embed ? (
           <div className="video"><iframe src={embed} title={lesson.title} allowFullScreen /></div>
         ) : lesson.video_url ? (
-          <p><a href={lesson.video_url} target="_blank" rel="noreferrer">▶ Watch video</a></p>
+          <p><a href={lesson.video_url} target="_blank" rel="noreferrer">Watch the video ↗</a></p>
         ) : null}
         <div className="prose pre-wrap">{lesson.content || 'No written notes for this module.'}</div>
         {lesson.resources?.length > 0 && (
@@ -64,7 +64,7 @@ export default function LessonView() {
             <h3>Learning materials</h3>
             {lesson.resources.map((r, i) => (
               <a key={i} href={r.url} target="_blank" rel="noreferrer" className="resource">
-                <span className="tag tag-muted">{RESOURCE_TYPES[r.type] || '🔗 Link'}</span>{r.label}
+                <span className="tag">{RESOURCE_TYPES[r.type] || 'Link'}</span>{r.label}
               </a>
             ))}
           </div>
@@ -73,7 +73,7 @@ export default function LessonView() {
           {prev ? <Link className="btn btn-ghost" to={`/courses/${courseId}/lessons/${prev.id}`}>← Previous</Link> : <span />}
           {course.is_enrolled && (
             <button className={`btn ${done ? 'btn-ghost' : 'btn-success'}`} onClick={toggle}>
-              {done ? '↺ Mark as incomplete' : '✓ Mark as complete'}
+              {done ? 'Completed · undo' : 'Mark module complete'}
             </button>
           )}
           {next ? <Link className="btn btn-ghost" to={`/courses/${courseId}/lessons/${next.id}`}>Next →</Link> : <span />}

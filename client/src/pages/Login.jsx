@@ -84,18 +84,23 @@ export default function Login({ mode = 'login' }) {
   return (
     <div className="auth-page">
       <div className="auth-hero">
-        <Link to="/" className="auth-brand">🎓 LearnSphere</Link>
-        <h1>{isRegister ? 'Start learning today.' : 'Welcome back.'}</h1>
-        <p>A Learning Management System for students, instructors and administrators.</p>
-        <ul className="feature-list">
-          <li>📚 Structured courses with ordered modules</li>
-          <li>📈 Real-time progress tracking</li>
-          <li>📝 Assignments, submissions, marks &amp; feedback</li>
-          <li>🛡️ Secure authentication with role-based access</li>
-        </ul>
+        <Link to="/" className="wordmark auth-brand">LearnSphere <small>LMS</small></Link>
+        <div>
+          <p className="eyebrow">[ {isRegister ? 'New here' : 'Returning'} ]</p>
+          <h1>{isRegister ? 'Start a new chapter.' : 'Pick up where you left off.'}</h1>
+          <p>Courses, modules, assignments and progress, for students, instructors and administrators.</p>
+          <ul className="feature-list">
+            <li><span>01</span>Ordered modules with notes, video and materials</li>
+            <li><span>02</span>Progress that fills in as you finish each module</li>
+            <li><span>03</span>Assignments with marks and written feedback</li>
+            <li><span>04</span>Role-based access, verified on every request</li>
+          </ul>
+        </div>
+        <span className="watermark-deva" aria-hidden>विद्या</span>
       </div>
       <div className="auth-card card">
-        <h2>{isRegister ? 'Create your account' : 'Sign in'}</h2>
+        <p className="eyebrow">{isRegister ? 'Registration' : 'Sign in'}</p>
+        <h2>{isRegister ? 'Create your account' : 'Welcome back'}</h2>
         {error && <div className="alert alert-error">{error}</div>}
         <button className="btn btn-google btn-block" onClick={google} disabled={busy}>
           <GoogleIcon /> Continue with Google
