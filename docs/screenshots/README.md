@@ -1,0 +1,1 @@
+Put your output screenshots here, for example: `login.png`, `onboarding.png`, `student-dashboard.png`, `catalog.png`, `course-detail.png`, `lesson.png`, `assignment-submit.png`, `instructor-dashboard.png`, `course-editor.png`, `grading.png`, `admin.png`.
