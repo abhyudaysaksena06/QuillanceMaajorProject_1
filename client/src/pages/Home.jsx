@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import CourseCard from '../components/CourseCard';
+import Reveal from '../components/Reveal';
 
 const features = [
   ['01', 'Accounts & roles', 'Register with email or Google. Students, instructors and admins each get their own workspace.'],
@@ -63,39 +64,39 @@ export default function Home() {
 
       <section id="about" className="landing-section">
         <span className="section-index" aria-hidden>01</span>
-        <p className="eyebrow">[ About the LMS ]</p>
-        <h2>Everything a course needs, nothing it doesn't.</h2>
-        <p className="section-lead">One system with separate spaces for learners and teachers, and a shared record of the work.</p>
+        <Reveal><p className="eyebrow">[ About the LMS ]</p>
+          <h2>Everything a course needs, nothing it doesn't.</h2></Reveal>
+        <Reveal delay={120}><p className="section-lead">One system with separate spaces for learners and teachers, and a shared record of the work.</p></Reveal>
         <div className="feature-grid">
           {features.map(([n, title, text]) => (
-            <div key={n} className="feature"><span className="eyebrow accent">{n}</span><h3>{title}</h3><p>{text}</p></div>
+            <Reveal key={n} delay={(Number(n) - 1) % 3 * 110} className="feature"><span className="eyebrow accent">{n}</span><h3>{title}</h3><p>{text}</p></Reveal>
           ))}
         </div>
       </section>
 
       <section className="manifesto">
         <div>
-          <p>read the module.</p>
-          <p className="text-stroke">hand in the work.</p>
-          <p>watch the bar fill.</p>
+          <Reveal as="p">read the module.</Reveal>
+          <Reveal as="p" delay={140} className="text-stroke">hand in the work.</Reveal>
+          <Reveal as="p" delay={280}>watch the bar fill.</Reveal>
         </div>
       </section>
 
       <section className="landing-section">
         <span className="section-index" aria-hidden>02</span>
-        <p className="eyebrow">[ How it works ]</p>
-        <h2>Seven steps, start to finish.</h2>
+        <Reveal><p className="eyebrow">[ How it works ]</p>
+          <h2>Seven steps, start to finish.</h2></Reveal>
         <ol className="flow" style={{ marginTop: '2.5rem' }}>
-          {steps.map((s, i) => <li key={s}><small>STEP {String(i + 1).padStart(2, '0')}</small>{s}</li>)}
+          {steps.map((s, i) => <Reveal as="li" key={s} delay={i * 70}><small>STEP {String(i + 1).padStart(2, '0')}</small>{s}</Reveal>)}
         </ol>
       </section>
 
       <section id="courses" className="landing-section">
         <span className="section-index" aria-hidden>03</span>
-        <p className="eyebrow">[ Catalog ]</p>
-        <h2>On the shelf right now.</h2>
+        <Reveal><p className="eyebrow">[ Catalog ]</p>
+          <h2>On the shelf right now.</h2></Reveal>
         {courses.length ? (
-          <div className="course-grid" style={{ marginTop: '2.5rem' }}>{courses.map((c, i) => <CourseCard key={c.id} course={c} index={i} />)}</div>
+          <div className="course-grid" style={{ marginTop: '2.5rem' }}>{courses.map((c, i) => <Reveal key={c.id} delay={i % 3 * 110}><CourseCard course={c} index={i} /></Reveal>)}</div>
         ) : <p className="section-lead">Courses show up here as soon as an instructor publishes one.</p>}
       </section>
 

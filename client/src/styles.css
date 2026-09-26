@@ -347,3 +347,26 @@ a.list-row:hover { padding-left: .7rem; color: var(--accent); }
 .course-hero .watermark { top: auto; bottom: -4.5rem; right: 18rem; }
 @media (max-width: 860px) { .course-hero .watermark { right: 1rem; } }
 @media (max-width: 560px) { .topnav .wordmark small { display: none; } }
+
+/* ---------- transitions (kept few and quiet) ---------- */
+/* 1. headings rise out of a mask on page load */
+@keyframes mask-rise { from { clip-path: inset(0 0 100% 0); transform: translateY(.35em); } to { clip-path: inset(0 0 -20% 0); transform: none; } }
+.page-header h1, .course-hero h1, .lesson-content h1, .landing-hero h1, .auth-hero h1, .onboarding h1 { animation: mask-rise .9s var(--ease) both; animation-delay: 80ms; }
+.landing-hero h1 { animation-delay: 150ms; }
+
+/* 2. scroll reveal */
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: var(--reveal-delay, 0ms); }
+.reveal.is-in { opacity: 1; transform: none; }
+.course-grid > .reveal { display: flex; } .course-grid > .reveal > .course-card { flex: 1; }
+
+/* 3. route line */
+@keyframes route-sweep { 0% { transform: scaleX(0); transform-origin: left; } 55% { transform: scaleX(1); transform-origin: left; } 56% { transform-origin: right; } 100% { transform: scaleX(0); transform-origin: right; } }
+.route-line { position: fixed; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); z-index: 100; pointer-events: none; animation: route-sweep .8s var(--ease) forwards; }
+
+/* 4. buttons fill from the left on hover */
+.btn-ghost, .btn-google, .btn-danger { position: relative; overflow: hidden; isolation: isolate; }
+.btn-ghost::before, .btn-google::before, .btn-danger::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--paper); transform: scaleX(0); transform-origin: right; transition: transform .45s var(--ease); }
+.btn-danger::before { background: var(--accent); }
+.btn-ghost:hover:not(:disabled)::before, .btn-google:hover::before, .btn-danger:hover::before { transform: scaleX(1); transform-origin: left; }
+.btn-ghost:hover:not(:disabled), .btn-google:hover, .btn-danger:hover { color: var(--ink); border-color: var(--paper); background: transparent; }
+.btn-danger:hover { border-color: var(--accent); }
