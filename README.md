@@ -110,6 +110,24 @@ Online learning is often spread across chat groups, drive folders and spreadshee
 
 ---
 
+## 🔑 Demo accounts
+After running `npm run seed:demo` (see [docs/RUN_LOCALLY.md](docs/RUN_LOCALLY.md)), every account uses the password **`Demo@1234`**:
+
+| Role | Email |
+|---|---|
+| Student | `student@learnsphere.demo` |
+| Student | `student2@learnsphere.demo` |
+| Instructor | `instructor@learnsphere.demo` |
+| Admin | `admin@learnsphere.demo` |
+
+## ⚡ Quick start
+```bash
+npm run setup      # install root, server and client packages
+npm run seed:demo  # create demo accounts (after filling in the .env files)
+npm run dev        # API on :5000 and web app on :5173, together
+```
+Full step-by-step guide: **[docs/RUN_LOCALLY.md](docs/RUN_LOCALLY.md)**
+
 ## 🚀 Getting started
 
 ### Prerequisites

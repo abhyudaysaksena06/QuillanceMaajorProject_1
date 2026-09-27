@@ -1,0 +1,12 @@
+{
+  "name": "learnsphere",
+  "private": true,
+  "scripts": {
+    "setup": "npm install && npm install --prefix server && npm install --prefix client",
+    "dev": "concurrently -n api,web -c red,yellow \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "seed:demo": "npm run seed:demo --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
