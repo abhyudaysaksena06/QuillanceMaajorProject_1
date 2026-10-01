@@ -11,6 +11,16 @@ export default function Admin() {
   const [users, setUsers] = useState(null);
   const [filter, setFilter] = useState('');
   const [filterRole, setFilterRole] = useState('');
+  const [note, setNote] = useState({ title: '', message: '', audience: 'all' });
+
+  const broadcast = async (e) => {
+    e.preventDefault();
+    try {
+      const r = await api('/admin/announce', { method: 'POST', body: note });
+      toast.success(`Sent to ${r.sent} user${r.sent === 1 ? '' : 's'}`);
+      setNote({ title: '', message: '', audience: 'all' });
+    } catch (err) { toast.error(err.message); }
+  };
 
   const load = () => api('/admin/users').then(setUsers);
   useEffect(() => { load(); }, []);
@@ -35,6 +45,19 @@ export default function Admin() {
           <div key={label} className="stat"><p className="eyebrow"><span>{label}</span><span>0{i + 1}</span></p><div className="stat-value">{n}</div></div>
         ))}
       </div>
+      <form className="card form" onSubmit={broadcast}>
+        <h2 style={{ margin: 0 }}>Platform announcement</h2>
+        <div className="form-row">
+          <label>Title<input className="input" value={note.title} onChange={(e) => setNote({ ...note, title: e.target.value })} required /></label>
+          <label>Message<input className="input" value={note.message} onChange={(e) => setNote({ ...note, message: e.target.value })} /></label>
+          <label style={{ flex: '0 0 auto' }}>Send to
+            <select className="input" value={note.audience} onChange={(e) => setNote({ ...note, audience: e.target.value })}>
+              <option value="all">Everyone</option><option value="student">Students</option><option value="instructor">Instructors</option>
+            </select>
+          </label>
+        </div>
+        <div className="form-actions"><button className="btn btn-primary btn-sm">Send announcement</button></div>
+      </form>
       <div className="toolbar">
         <input className="input" placeholder="Search by name or email" value={filter} onChange={(e) => setFilter(e.target.value)} />
         <select className="input w-auto" value={filterRole} onChange={(e) => setFilterRole(e.target.value)}>

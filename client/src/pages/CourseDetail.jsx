@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { api } from '../api';
 import Loader from '../components/Loader';
 import ProgressBar from '../components/ProgressBar';
 import Avatar from '../components/Avatar';
+import Discussion from '../components/Discussion';
 import { formatDate, submissionBadge } from '../utils';
 
 export default function CourseDetail() {
@@ -12,6 +13,8 @@ export default function CourseDetail() {
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [params, setParams] = useSearchParams();
+  const tab = params.get('tab') === 'discussion' ? 'discussion' : 'overview';
 
   const load = useCallback(() => api(`/courses/${id}`).then(setCourse).catch((e) => {
     toast.error(e.message);
@@ -77,10 +80,19 @@ export default function CourseDetail() {
               {course.progress === 0 ? 'Start learning' : course.progress === 100 ? 'Review course' : 'Continue learning'}
             </Link>
           )}
+          {course.certificate_id && <Link className="btn btn-ghost" to={`/certificates/${course.certificate_id}`}>View certificate</Link>}
           {course.is_enrolled && <button className="btn btn-ghost btn-sm" onClick={unenroll}>Leave course</button>}
         </div>
       </div>
 
+      {canOpen && (
+        <div className="tabs">
+          <button className={tab === 'overview' ? 'active' : ''} onClick={() => setParams({})}>Modules &amp; assignments</button>
+          <button className={tab === 'discussion' ? 'active' : ''} onClick={() => setParams({ tab: 'discussion' })}>Discussion</button>
+        </div>
+      )}
+
+      {tab === 'discussion' && canOpen ? <Discussion courseId={id} canManage={course.can_manage} /> : (
       <div className="grid-2">
         <section className="card">
           <h2>Course modules</h2>
@@ -89,6 +101,7 @@ export default function CourseDetail() {
               <li key={l.id} className={done.has(l.id) ? 'done' : ''}>
                 <span className="lesson-index">{String(i + 1).padStart(2, '0')}</span>
                 {canOpen ? <Link to={`/courses/${id}/lessons/${l.id}`}>{l.title}</Link> : <span className="muted">{l.title}</span>}
+                {l.quiz?.length > 0 && <span className="tag tag-muted">Quiz</span>}
                 {l.duration_minutes && <span className="muted small">{l.duration_minutes} min</span>}
               </li>
             ))}
@@ -112,6 +125,7 @@ export default function CourseDetail() {
           </div>
         </section>
       </div>
+      )}
     </>
   );
 }

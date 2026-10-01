@@ -3,7 +3,7 @@
 | File | What it is |
 |---|---|
 | `Abhyuday_Saksena_MajorProject_FullStackDevelopment.zip` | The file to upload: source code, database scripts, README, docs, documentation PDF, screenshots and demo video |
-| `LearnSphere_LMS_Documentation.pdf` | Project documentation (8 pages) |
+| `LearnSphere_LMS_Documentation.pdf` | Project documentation (10 pages) |
 | `Screenshots/` | Output screenshots go here |
 | `build-submission.mjs` | Rebuilds the zip |
 | `source/` | HTML source of the documentation PDF and the script that renders it |

@@ -6,6 +6,9 @@ import App from './App';
 import RouteLine from './components/RouteLine';
 import { AuthProvider } from './context/AuthContext';
 import './styles.css';
+import { applyTheme, initialTheme } from './theme';
+
+applyTheme(initialTheme());
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

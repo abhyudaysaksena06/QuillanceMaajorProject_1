@@ -21,3 +21,12 @@ Manual tests against the project brief's checklist. Tick them off before you sub
 | 15 | Deactivated user | Admin deactivates a user, who then calls the API | `403` |
 | 16 | Responsive | Resize to about 375px wide | Sidebar becomes  menu; no horizontal scroll |
 | 17 | Persistence | Restart the server, refresh the browser | All data is still there (Supabase) |
+| 18 | Quiz | Fail a module quiz, then pass it | Fail shows score and explanations; pass completes the module |
+| 19 | Quiz security | Inspect the course API response as a student | Questions and options only, no correct answers |
+| 20 | Certificate | Complete every module of a course | Notification + certificate; `/verify/:id` works logged out |
+| 21 | File submission | Upload a PDF, then a 15 MB file, then an .exe | PDF stored and downloadable by the instructor; the others are rejected |
+| 22 | Discussion | Ask, reply, upvote; instructor marks an answer | Answer badge shown; asker gets a notification |
+| 23 | Notifications | Grade a submission / post an assignment | Bell count increases for the student(s) |
+| 24 | CSV export | Instructor exports the gradebook | CSV opens in Excel with marks per assignment |
+| 25 | Ownership transfer | Admin changes a course's owner | New owner can edit it; old owner cannot |
+

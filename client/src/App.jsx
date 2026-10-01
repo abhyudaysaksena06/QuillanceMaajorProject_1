@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Submissions from './pages/Submissions';
+import Certificate from './pages/Certificate';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
 import Courses from './pages/Courses';
@@ -25,6 +26,8 @@ export default function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Login mode="register" />} />
+      <Route path="/certificates/:id" element={<Certificate />} />
+      <Route path="/verify/:id" element={<Certificate />} />
       <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
       <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />

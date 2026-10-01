@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import Loader from '../components/Loader';
 import CourseCard from '../components/CourseCard';
 import ProgressBar from '../components/ProgressBar';
+import { BarList, TrendChart, Donut } from '../components/Charts';
 import { formatDate, relativeDue, shortHash } from '../utils';
 
 function Stat({ index, label, value, suffix }) {
@@ -99,6 +100,20 @@ export default function Dashboard() {
             </ul>
           </section>
 
+          {data.certificates?.length > 0 && (
+            <section className="card">
+              <h2>Certificates</h2>
+              <div className="list">
+                {data.certificates.map((c) => (
+                  <Link key={c.certificate_id} to={`/certificates/${c.certificate_id}`} className="list-row">
+                    <span>{c.course?.title}</span>
+                    <span className="muted small mono">{c.certificate_id} · {formatDate(c.completed_at)}</span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
           {courses.length > 0 && (
             <>
               <h2 className="section-title">Continue learning</h2>
@@ -117,6 +132,25 @@ export default function Dashboard() {
             <Stat index="04" label="To review" value={s.pending_grading} />
             {s.total_users !== undefined && <Stat index="05" label="Users" value={s.total_users} />}
           </div>
+          {data.charts && (
+            <>
+              <section className="card">
+                <div className="card-header"><h2>Enrollments, last 30 days</h2><span className="progress-label">{data.charts.completion_rate}% completion rate</span></div>
+                <TrendChart data={data.charts.enrollment_trend} />
+              </section>
+              <div className="grid-2">
+                <section className="card"><h2>Learners per course</h2><BarList data={data.charts.enrollments_per_course} /></section>
+                <section className="card">
+                  <h2>Submissions</h2>
+                  <Donut segments={[
+                    { label: 'Awaiting review', value: data.charts.submissions[0].count, tone: 'tone-warn' },
+                    { label: 'Graded', value: data.charts.submissions[1].count, tone: 'tone-ok' },
+                    { label: 'Resubmission requested', value: data.charts.submissions[2].count, tone: 'tone-accent' },
+                  ]} />
+                </section>
+              </div>
+            </>
+          )}
           <section className="card">
             <div className="card-header">
               <h2>Waiting for review</h2>

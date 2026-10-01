@@ -44,11 +44,15 @@ Online learning is often spread across chat groups, drive folders and spreadshee
 
 ### Student
 - **Dashboard**: enrolled courses, completed courses, modules completed, pending assignments, average marks, overall progress, upcoming deadlines and **recent activity**.
-- **Course catalog** with search and category filter.
+- **Course catalog** with search, category and difficulty filters, and sorting (newest, oldest, A–Z).
 - **Enroll and leave** courses.
 - **Course modules** in order, each with notes, an embedded YouTube/Vimeo video and **learning materials** (notes, PDF, video, source code, reference and practice-exercise links), previous/next navigation and **mark as complete**.
+- **Module quizzes**: multiple-choice knowledge checks graded on the server (answers are never sent to the browser before submitting). A module with a quiz is completed by reaching its pass mark; explanations are shown after each attempt.
+- **Certificates**: issued automatically at 100% completion, printable, with a public verification page at `/verify/:id`.
+- **Course discussion**: ask questions, reply, upvote; the instructor can mark the accepted answer.
+- **Personal notes** per course, saved in the browser and exportable as `.txt`.
 - **Progress tracking**: percentage, progress bar and status (Not started / In progress / Completed) per course and overall.
-- **Assignments**: see instructions, deadline and maximum marks. Submit text and/or a GitHub, Drive or project link. Update the submission until it's graded. See marks, feedback and status (Submitted / Graded / Resubmission requested / Missed / Late).
+- **Assignments**: see instructions, deadline and maximum marks. Submit text, a GitHub/Drive/project link and/or a **file** (PDF, ZIP, DOCX, PNG, JPG up to 10 MB, stored in Supabase Storage). Update the submission until it's graded. See marks, feedback and status (Submitted / Graded / Resubmission requested / Missed / Late).
 
 ### Instructor
 - **Course management**: create, edit and delete courses. Set title, description, category, instructor, duration, difficulty, image, and draft or published status.
@@ -56,11 +60,21 @@ Online learning is often spread across chat groups, drive folders and spreadshee
 - **Assignment management**: set a due date and max points.
 - **Submission review**: a central Submissions page with Awaiting review / Graded / Resubmission tabs. Award marks with feedback, or request a resubmission. Late submissions are flagged.
 - **Student roster** showing each enrolled student's progress.
-- Dashboard with course, student and enrollment stats plus a "waiting for grading" queue.
+- Dashboard with course, student and enrollment stats, **charts** (30-day enrollment trend, learners per course, submission breakdown, completion rate) and a grading queue (oldest first).
+- **Quiz builder** in the module editor, with a pass mark per module.
+- **Gradebook CSV export** (progress, completion, certificate and marks per assignment).
+- **Announcements** to everyone enrolled in a course.
 
 ### Admin
 - **Manage users**: search and filter students, instructors and admins. See enrollment and course counts, change roles, activate or deactivate accounts.
-- Platform-wide statistics. Admins can also manage any course.
+- Platform-wide statistics. Admins can also manage any course and **transfer course ownership**.
+- **Platform announcements** to everyone, all students or all instructors.
+
+### Everyone
+- **Notifications** bell: new assignments, marks, resubmission requests, certificates, discussion replies and announcements. Optional email copies when SMTP is configured.
+- **Dark mode**, remembered per browser.
+- **Profile photo upload** (Supabase Storage).
+- API **rate limiting** and Helmet security headers.
 
 ---
 
@@ -109,7 +123,7 @@ Online learning is often spread across chat groups, drive folders and spreadshee
 ```
 
 ### Database schema
-7 tables: `users`, `courses`, `lessons` (course **modules**), `enrollments`, `lesson_progress`, `assignments`, `submissions`. Enrollment progress and status are **calculated** from `lesson_progress`, so they never go out of sync. See [`database/schema.sql`](database/schema.sql) and the [ER diagram](database/ER-diagram.md).
+11 tables: `users`, `courses`, `lessons` (course **modules**, with quiz), `enrollments` (with certificate), `lesson_progress`, `quiz_attempts`, `assignments`, `submissions`, `discussions`, `discussion_replies`, `notifications`; plus two storage buckets (`submissions`, `avatars`). Enrollment progress and status are **calculated** from `lesson_progress`, so they never go out of sync. See [`database/schema.sql`](database/schema.sql) and the [ER diagram](database/ER-diagram.md).
 
 ---
 
@@ -137,8 +151,8 @@ Full step-by-step guide: **[docs/RUN_LOCALLY.md](docs/RUN_LOCALLY.md)**
 Node.js 18+, a [Firebase](https://console.firebase.google.com) project, and a [Supabase](https://supabase.com) project.
 
 ### 1. Supabase
-1. Create a project, open **SQL Editor**, paste [`database/schema.sql`](database/schema.sql) and run it.
-   Then (optionally) run [`database/seed.sql`](database/seed.sql) for sample courses, modules and assignments.
+1. Create a project, open **SQL Editor**, paste [`database/setup_all.sql`](database/setup_all.sql) and run it. It creates every table, the storage buckets and the sample courses.
+   Already ran an older version? Run [`database/migration_002_features.sql`](database/migration_002_features.sql) instead.
 2. Copy the **Project URL** and the **service_role key** from Project Settings → API.
 
 ### 2. Firebase
@@ -189,7 +203,7 @@ Put screenshots in [`docs/screenshots/`](docs/screenshots/) and link them here, 
 See [`docs/TESTING.md`](docs/TESTING.md) for the test checklist.
 
 ## Future improvements
-Quizzes, certificate generation, email notifications, a discussion forum, course ratings, dark mode, file uploads (Supabase Storage) and analytics charts.
+Course ratings and reviews, live classes, attendance tracking, and real-time notifications over WebSockets.
 
 ## Security highlights
 - Firebase ID tokens are checked on **every** API request. Tokens are short-lived and refreshed automatically.

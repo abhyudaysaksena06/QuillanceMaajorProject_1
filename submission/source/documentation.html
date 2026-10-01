@@ -89,7 +89,7 @@ pre { font: 8.4pt/1.5 "DejaVu Sans Mono", monospace; background: #241c17; color:
     <tr><td>Progress tracking</td><td>Done</td><td>Per module, per course and overall</td></tr>
     <tr><td>Student and admin dashboards</td><td>Done</td><td>Role-specific dashboards</td></tr>
     <tr><td>Database integration</td><td>Done</td><td>Supabase PostgreSQL, 7 tables</td></tr>
-    <tr><td>Optional: search and filtering, password reset</td><td>Done</td><td>Catalog search, Firebase reset email</td></tr>
+    <tr><td>Optional features from the brief</td><td>Done</td><td>Quizzes, certificates, email notifications, search and filtering, discussion forum, dark mode, profile photo upload, password reset, analytics charts</td></tr>
   </table>
 </section>
 
@@ -99,9 +99,9 @@ pre { font: 8.4pt/1.5 "DejaVu Sans Mono", monospace; background: #241c17; color:
   <p class="lead">Every rule below is checked on the server, not only hidden in the interface.</p>
   <table>
     <tr><th style="width:24%">Role</th><th>Capabilities</th><th style="width:28%">Main screens</th></tr>
-    <tr><td><b>Student</b></td><td>Register and log in, browse and search courses, enroll or leave, study modules and mark them complete, submit and update assignments until graded, view marks and feedback, track progress.</td><td>Dashboard, Catalog, My Courses, Module view, Assignments, Profile</td></tr>
-    <tr><td><b>Instructor</b></td><td>Create, edit, publish and delete their own courses; add, reorder and delete modules with learning materials; create assignments with deadlines and maximum marks; review submissions; give marks and feedback or request a resubmission; view the roster with each student's progress.</td><td>Dashboard, Manage Courses, Course Editor, Submissions</td></tr>
-    <tr><td><b>Admin</b></td><td>Everything an instructor can do, on every course. Also: view all users, change roles, activate or deactivate accounts, and see platform statistics.</td><td>Dashboard, Users, all instructor screens</td></tr>
+    <tr><td><b>Student</b></td><td>Register and log in, browse and filter courses, enroll or leave, study modules, pass module quizzes, submit text, links or files until graded, view marks and feedback, ask questions in the course discussion, keep personal notes, track progress and earn certificates.</td><td>Dashboard, Catalog, My Courses, Module view, Assignments, Profile</td></tr>
+    <tr><td><b>Instructor</b></td><td>Create, edit, publish and delete their own courses; add, reorder and delete modules with learning materials; create assignments with deadlines and maximum marks; review submissions; give marks and feedback or request a resubmission; view the roster with each student's progress; build module quizzes; export the gradebook as CSV; send announcements; answer course discussions.</td><td>Dashboard, Manage Courses, Course Editor, Submissions</td></tr>
+    <tr><td><b>Admin</b></td><td>Everything an instructor can do, on every course. Also: view all users, change roles, activate or deactivate accounts, transfer course ownership, send platform announcements and see platform statistics.</td><td>Dashboard, Users, all instructor screens</td></tr>
   </table>
   <h3>How a request is authorised</h3>
   <ol>
@@ -127,6 +127,21 @@ pre { font: 8.4pt/1.5 "DejaVu Sans Mono", monospace; background: #241c17; color:
     <div class="box"><h3>Assignments</h3><ul><li>Instructions, deadline, maximum marks</li><li>Submit text and/or a GitHub, Drive or project link</li><li>Update until graded; late submissions flagged</li></ul></div>
     <div class="box"><h3>Review and marks</h3><ul><li>Central Submissions page: awaiting review, graded, resubmission requested</li><li>Marks validated against the maximum, plus written feedback</li><li>Status: submitted, graded or resubmit</li></ul></div>
     <div class="box"><h3>Progress and admin</h3><ul><li>Segmented progress bar, one segment per module</li><li>Instructor roster with each student's progress</li><li>Admin user list: role changes, activation, enrollment counts</li></ul></div>
+  </div>
+</section>
+
+<section class="page">
+  <p class="eyebrow">03 · Features (continued)</p>
+  <h2>Learning, community and analytics</h2>
+  <div class="grid2">
+    <div class="box"><h3>Module quizzes</h3><ul><li>Multiple-choice questions with explanations, built in the module editor</li><li>Graded on the server; correct answers are never sent before submitting</li><li>A module with a quiz is completed by reaching its pass mark</li><li>Every attempt is stored with its score</li></ul></div>
+    <div class="box"><h3>Certificates</h3><ul><li>Issued automatically when every module is complete</li><li>Unique credential ID (LS-XXXXXXXX)</li><li>Public verification page at /verify/:id, no login needed</li><li>Print-ready layout, save as PDF from the browser</li></ul></div>
+    <div class="box"><h3>File submissions</h3><ul><li>PDF, ZIP, DOCX, PNG or JPG up to 10 MB</li><li>Type and size checked on the server</li><li>Stored in a private Supabase Storage bucket</li><li>Downloaded through short-lived signed links</li></ul></div>
+    <div class="box"><h3>Course discussion</h3><ul><li>Questions and replies per course</li><li>Upvotes to surface common questions</li><li>Instructor can mark the accepted answer</li><li>Authors and instructors can delete threads</li></ul></div>
+    <div class="box"><h3>Notifications</h3><ul><li>Bell with unread count in the navigation</li><li>New assignment, marks, resubmission request, certificate, replies, announcements</li><li>Optional email copies through any SMTP provider</li></ul></div>
+    <div class="box"><h3>Analytics and export</h3><ul><li>30-day enrollment trend, learners per course</li><li>Submission breakdown and completion rate</li><li>Gradebook CSV: progress, completion, certificate, marks per assignment</li></ul></div>
+    <div class="box"><h3>Personal tools</h3><ul><li>Course notes with quick snippets, auto-saved, export to .txt</li><li>Dark mode remembered per browser</li><li>Profile photo upload</li></ul></div>
+    <div class="box"><h3>Administration</h3><ul><li>Announcements to a course or the whole platform</li><li>Transfer course ownership between instructors</li><li>API rate limiting and security headers</li></ul></div>
   </div>
   <h3>User workflows</h3>
   <p><b>Student:</b> Register → Login → Browse courses → Enroll → Open course → Study modules → Mark complete → View assignments → Submit → Track progress → Course completed.</p>
@@ -171,34 +186,40 @@ database/              schema.sql, seed.sql, setup_all.sql, ER diagram</pre>
 <section class="page">
   <p class="eyebrow">05 · Data</p>
   <h2>Database schema</h2>
-  <p class="lead">Seven PostgreSQL tables in Supabase. UUID primary keys, foreign keys with cascading deletes.</p>
+  <p class="lead">Eleven PostgreSQL tables and two storage buckets in Supabase. UUID primary keys, foreign keys with cascading deletes.</p>
   <table>
     <tr><th style="width:20%">Table</th><th>Key fields</th><th style="width:30%">Constraints</th></tr>
     <tr><td>users</td><td>firebase_uid, email, name, role, onboarded, is_active, bio</td><td>firebase_uid unique; role in student / instructor / admin</td></tr>
     <tr><td>courses</td><td>title, description, category, level, duration, thumbnail_url, published, instructor_id</td><td>instructor_id → users; level check</td></tr>
-    <tr><td>lessons (modules)</td><td>course_id, title, content, video_url, position, duration_minutes, resources (JSON)</td><td>course_id → courses; indexed by (course_id, position)</td></tr>
-    <tr><td>enrollments</td><td>user_id, course_id, enrolled_at</td><td>unique (user_id, course_id)</td></tr>
+    <tr><td>lessons (modules)</td><td>course_id, title, content, video_url, position, resources (JSON), quiz (JSON), pass_mark</td><td>course_id → courses; indexed by (course_id, position)</td></tr>
+    <tr><td>enrollments</td><td>user_id, course_id, enrolled_at, completed_at, certificate_id</td><td>unique (user_id, course_id); certificate_id unique</td></tr>
     <tr><td>lesson_progress</td><td>user_id, lesson_id, completed_at</td><td>unique (user_id, lesson_id)</td></tr>
     <tr><td>assignments</td><td>course_id, title, description, due_date, max_points</td><td>max_points &gt; 0</td></tr>
-    <tr><td>submissions</td><td>assignment_id, student_id, content, link_url, status, grade, feedback, graded_at</td><td>unique (assignment_id, student_id); status check</td></tr>
+    <tr><td>submissions</td><td>assignment_id, student_id, content, link_url, file_path, status, grade, feedback</td><td>unique (assignment_id, student_id); status check</td></tr>
+    <tr><td>quiz_attempts</td><td>user_id, lesson_id, score, passed, answers</td><td>indexed by (user_id, lesson_id)</td></tr>
+    <tr><td>discussions / replies</td><td>course_id, user_id, title, body, upvotes · discussion_id, body, is_instructor_answer</td><td>cascade on course / thread delete</td></tr>
+    <tr><td>notifications</td><td>user_id, type, title, message, link, is_read</td><td>indexed by (user_id, is_read, created_at)</td></tr>
   </table>
-  <h3>REST API (selected endpoints)</h3>
+</section>
+
+<section class="page">
+  <p class="eyebrow">05 · Data (continued)</p>
+  <h2>REST API</h2>
+  <p class="lead">Selected endpoints. Every route except the public ones needs a Firebase ID token.</p>
   <table>
     <tr><th style="width:12%">Method</th><th style="width:38%">Endpoint</th><th>Purpose</th><th style="width:17%">Access</th></tr>
-    <tr><td>GET</td><td class="mono">/api/public/courses</td><td>Featured courses for the home page</td><td>Public</td></tr>
     <tr><td>GET</td><td class="mono">/api/auth/me</td><td>Current profile (created on first login)</td><td>Signed in</td></tr>
-    <tr><td>POST</td><td class="mono">/api/auth/onboard</td><td>Choose student or instructor</td><td>Signed in</td></tr>
     <tr><td>GET</td><td class="mono">/api/courses</td><td>Catalog with search and category</td><td>Signed in</td></tr>
     <tr><td>POST</td><td class="mono">/api/courses</td><td>Create course</td><td>Instructor</td></tr>
     <tr><td>POST</td><td class="mono">/api/courses/:id/enroll</td><td>Enroll in a course</td><td>Student</td></tr>
-    <tr><td>POST</td><td class="mono">/api/lessons</td><td>Add a module</td><td>Owner</td></tr>
-    <tr><td>POST</td><td class="mono">/api/lessons/:id/complete</td><td>Mark module complete</td><td>Enrolled</td></tr>
+    <tr><td>POST</td><td class="mono">/api/lessons/:id/quiz</td><td>Submit quiz answers, graded on server</td><td>Enrolled</td></tr>
     <tr><td>POST</td><td class="mono">/api/assignments/:id/submit</td><td>Submit or resubmit work</td><td>Enrolled</td></tr>
     <tr><td>PATCH</td><td class="mono">/api/assignments/submissions/:id/grade</td><td>Marks, feedback, status</td><td>Owner</td></tr>
-    <tr><td>GET</td><td class="mono">/api/dashboard</td><td>Role-specific statistics</td><td>Signed in</td></tr>
+    <tr><td>GET</td><td class="mono">/api/public/certificates/:id</td><td>Verify a certificate</td><td>Public</td></tr>
+    <tr><td>GET</td><td class="mono">/api/notifications</td><td>Notifications and unread count</td><td>Signed in</td></tr>
     <tr><td>PATCH</td><td class="mono">/api/admin/users/:id</td><td>Change role, activate or deactivate</td><td>Admin</td></tr>
   </table>
-  <p>The full list of 25 endpoints is in <code>docs/API.md</code>. Errors are returned as <code>{ "error": "message" }</code> with status 400, 401, 403, 404, 409 or 500.</p>
+  <p>The full list of 45 endpoints is in <code>docs/API.md</code>. Errors are returned as <code>{ "error": "message" }</code> with status 400, 401, 403, 404, 409 or 500.</p>
 </section>
 
 <section class="page">
@@ -227,7 +248,7 @@ npm run dev</pre>
   <h3>Demo accounts</h3>
   <table>
     <tr><th>Role</th><th>Email</th><th>Password</th><th>Prepared data</th></tr>
-    <tr><td>Student</td><td class="mono">student@learnsphere.demo</td><td class="mono">Demo@1234</td><td>2 courses, modules done, a graded assignment</td></tr>
+    <tr><td>Student</td><td class="mono">student@learnsphere.demo</td><td class="mono">Demo@1234</td><td>2 courses, passed quizzes, a certificate, a graded assignment</td></tr>
     <tr><td>Student</td><td class="mono">student2@learnsphere.demo</td><td class="mono">Demo@1234</td><td>1 course, a submission awaiting review</td></tr>
     <tr><td>Instructor</td><td class="mono">instructor@learnsphere.demo</td><td class="mono">Demo@1234</td><td>Owns the 3 sample courses</td></tr>
     <tr><td>Admin</td><td class="mono">admin@learnsphere.demo</td><td class="mono">Demo@1234</td><td>User management and statistics</td></tr>
@@ -246,14 +267,14 @@ npm run dev</pre>
     <li>Keeping data private while using a hosted database: solved with Row Level Security and a server-only service key.</li>
     <li>Accurate progress when course content changes: solved by computing progress from completed modules instead of storing a number.</li>
     <li>Cross-origin requests between Vercel and Render: solved with a configurable CORS allow-list.</li>
+    <li>Keeping quiz answers secret: the server strips them from course data and grades attempts itself.</li>
   </ul>
   <h3>Future improvements</h3>
   <ul>
-    <li>Quizzes at the end of each module</li>
-    <li>Certificates when a course is completed</li>
-    <li>Email notifications for new assignments and marks</li>
-    <li>File uploads for submissions using Supabase Storage</li>
-    <li>Discussion forum per course, course ratings and analytics charts</li>
+    <li>Course ratings and reviews</li>
+    <li>Live classes and attendance tracking</li>
+    <li>Real-time notifications over WebSockets instead of polling</li>
+    <li>Automated test suite in CI</li>
   </ul>
   <h3>Submission contents</h3>
   <table>

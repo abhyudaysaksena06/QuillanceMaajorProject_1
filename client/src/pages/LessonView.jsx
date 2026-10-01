@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import { api } from '../api';
 import Loader from '../components/Loader';
 import ProgressBar from '../components/ProgressBar';
+import QuizPanel from '../components/QuizPanel';
+import CourseNotes from '../components/CourseNotes';
 import { toEmbedUrl, RESOURCE_TYPES } from '../utils';
 
 export default function LessonView() {
@@ -24,14 +26,28 @@ export default function LessonView() {
   const next = course.lessons[idx + 1];
   const embed = toEmbedUrl(lesson.video_url);
 
+  const hasQuiz = lesson.quiz?.length > 0;
+
+  const markDone = (certificateId) => {
+    const ids = [...new Set([...course.completed_lesson_ids, lessonId])];
+    setCourse({
+      ...course, completed_lesson_ids: ids, progress: Math.round((ids.length / course.lessons.length) * 100),
+      passed_quiz_ids: hasQuiz ? [...course.passed_quiz_ids, lessonId] : course.passed_quiz_ids,
+      certificate_id: certificateId || course.certificate_id,
+    });
+    if (certificateId) toast.success('Course complete. Your certificate is ready.', { duration: 5000 });
+  };
+
   const toggle = async () => {
     try {
-      await api(`/lessons/${lessonId}/complete`, { method: done ? 'DELETE' : 'POST' });
-      const ids = done ? course.completed_lesson_ids.filter((x) => x !== lessonId) : [...course.completed_lesson_ids, lessonId];
-      setCourse({ ...course, completed_lesson_ids: ids, progress: Math.round((ids.length / course.lessons.length) * 100) });
-      if (!done) {
-        toast.success('Module completed!');
-        if (next) navigate(`/courses/${courseId}/lessons/${next.id}`);
+      const r = await api(`/lessons/${lessonId}/complete`, { method: done ? 'DELETE' : 'POST' });
+      if (done) {
+        const ids = course.completed_lesson_ids.filter((x) => x !== lessonId);
+        setCourse({ ...course, completed_lesson_ids: ids, progress: Math.round((ids.length / course.lessons.length) * 100) });
+      } else {
+        markDone(r.certificate_id);
+        toast.success('Module completed');
+        if (next && !r.certificate_id) navigate(`/courses/${courseId}/lessons/${next.id}`);
       }
     } catch (e) { toast.error(e.message); }
   };
@@ -49,6 +65,8 @@ export default function LessonView() {
             </li>
           ))}
         </ol>
+        {course.certificate_id && <Link to={`/certificates/${course.certificate_id}`} className="btn btn-primary btn-sm">View certificate</Link>}
+        {course.is_enrolled && <CourseNotes courseId={courseId} courseTitle={course.title} />}
       </aside>
       <article className="card lesson-content">
         <p className="eyebrow">Module {String(idx + 1).padStart(2, '0')} / {String(course.lessons.length).padStart(2, '0')}{lesson.duration_minutes ? ` · ${lesson.duration_minutes} min` : ''}</p>
@@ -69,13 +87,25 @@ export default function LessonView() {
             ))}
           </div>
         )}
+        {hasQuiz && course.is_enrolled && (
+          <QuizPanel key={lessonId} lesson={lesson} passed={course.passed_quiz_ids.includes(lessonId)} onPassed={(r) => markDone(r.certificate_id)} />
+        )}
+        {hasQuiz && course.can_manage && (
+          <div className="quiz">
+            <p className="eyebrow">Quiz preview · pass mark {lesson.pass_mark}%</p>
+            <ol className="quiz-preview">
+              {lesson.quiz.map((q, i) => <li key={i}>{q.question} <span className="muted small">→ {q.options[q.answer]}</span></li>)}
+            </ol>
+          </div>
+        )}
         <div className="lesson-nav">
           {prev ? <Link className="btn btn-ghost" to={`/courses/${courseId}/lessons/${prev.id}`}>← Previous</Link> : <span />}
-          {course.is_enrolled && (
+          {course.is_enrolled && !hasQuiz && (
             <button className={`btn ${done ? 'btn-ghost' : 'btn-success'}`} onClick={toggle}>
               {done ? 'Completed · undo' : 'Mark module complete'}
             </button>
           )}
+          {course.is_enrolled && hasQuiz && <span className="muted small mono">{done ? 'Completed' : 'Pass the quiz to complete'}</span>}
           {next ? <Link className="btn btn-ghost" to={`/courses/${courseId}/lessons/${next.id}`}>Next →</Link> : <span />}
         </div>
       </article>

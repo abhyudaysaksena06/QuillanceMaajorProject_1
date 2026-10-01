@@ -51,8 +51,13 @@ router.get('/', asyncHandler(async (req, res) => {
         text: s.status === 'graded' ? `"${s.assignment.title}" graded: ${s.grade} marks` : `Resubmission requested for "${s.assignment.title}"` })),
     ].sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 6);
 
+    const certificates = unwrap(await supabase.from('enrollments')
+      .select('certificate_id, completed_at, course:courses(id,title)')
+      .eq('user_id', user.id).not('certificate_id', 'is', null).order('completed_at', { ascending: false }));
+
     return res.json({
       role: 'student',
+      certificates,
       recent_activity: activity,
       stats: {
         enrolled_courses: courseIds.length,
@@ -71,7 +76,7 @@ router.get('/', asyncHandler(async (req, res) => {
   if (user.role !== 'admin') coursesQuery = coursesQuery.eq('instructor_id', user.id);
   const courses = unwrap(await coursesQuery);
   const ids = courses.map((c) => c.id);
-  const enrollments = ids.length ? unwrap(await supabase.from('enrollments').select('user_id, course_id').in('course_id', ids)) : [];
+  const enrollments = ids.length ? unwrap(await supabase.from('enrollments').select('user_id, course_id, enrolled_at, completed_at').in('course_id', ids)) : [];
   const assignments = ids.length ? unwrap(await supabase.from('assignments').select('id').in('course_id', ids)) : [];
   const pending = assignments.length
     ? unwrap(await supabase.from('submissions')
@@ -79,6 +84,23 @@ router.get('/', asyncHandler(async (req, res) => {
         .in('assignment_id', assignments.map((a) => a.id)).eq('status', 'submitted')
         .order('submitted_at', { ascending: false }))
     : [];
+
+  const allSubs = assignments.length
+    ? unwrap(await supabase.from('submissions').select('status').in('assignment_id', assignments.map((a) => a.id)))
+    : [];
+  const today = new Date(); today.setUTCHours(0, 0, 0, 0);
+  const trend = Array.from({ length: 30 }, (_, i) => {
+    const day = new Date(today.getTime() - (29 - i) * 86400000).toISOString().slice(0, 10);
+    return { date: day, count: enrollments.filter((e) => e.enrolled_at.slice(0, 10) === day).length };
+  });
+  const charts = {
+    enrollments_per_course: courses
+      .map((c) => ({ title: c.title, count: enrollments.filter((e) => e.course_id === c.id).length }))
+      .sort((a, b) => b.count - a.count).slice(0, 8),
+    enrollment_trend: trend,
+    submissions: ['submitted', 'graded', 'resubmit'].map((st) => ({ status: st, count: allSubs.filter((x) => x.status === st).length })),
+    completion_rate: enrollments.length ? Math.round((enrollments.filter((e) => e.completed_at).length / enrollments.length) * 100) : 0,
+  };
 
   const stats = {
     total_courses: courses.length,
@@ -91,7 +113,7 @@ router.get('/', asyncHandler(async (req, res) => {
     const { count } = await supabase.from('users').select('id', { count: 'exact', head: true });
     stats.total_users = count || 0;
   }
-  res.json({ role: user.role, stats, pending_submissions: pending.slice(0, 8) });
+  res.json({ role: user.role, stats, charts, pending_submissions: pending.slice(0, 8) });
 }));
 
 export default router;

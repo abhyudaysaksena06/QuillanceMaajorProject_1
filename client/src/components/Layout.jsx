@@ -2,6 +2,8 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Avatar from './Avatar';
+import NotificationBell from './NotificationBell';
+import ThemeToggle from './ThemeToggle';
 
 function linksFor(role) {
   const links = [
@@ -47,6 +49,8 @@ export default function Layout() {
             ))}
           </nav>
           <div className="nav-user">
+            <ThemeToggle />
+            <NotificationBell />
             <Avatar user={user} size={30} />
             <button className="btn btn-ghost btn-sm signout" onClick={handleLogout}>Sign out</button>
           </div>

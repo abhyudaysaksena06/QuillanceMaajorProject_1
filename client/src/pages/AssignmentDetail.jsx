@@ -12,6 +12,8 @@ export default function AssignmentDetail() {
   const [a, setA] = useState(null);
   const [content, setContent] = useState('');
   const [link, setLink] = useState('');
+  const [file, setFile] = useState(null);
+  const [keepFile, setKeepFile] = useState(true);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(() => api(`/assignments/${id}`).then((data) => {
@@ -25,11 +27,19 @@ export default function AssignmentDetail() {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!content.trim() && !link.trim()) return toast.error('Write an answer or add a link');
+    const existingFile = sub?.file_name && keepFile;
+    if (!content.trim() && !link.trim() && !file && !existingFile) return toast.error('Write an answer, add a link or attach a file');
+    if (file && file.size > 10 * 1024 * 1024) return toast.error('File must be 10 MB or smaller');
     if (link && !/^https?:\/\//i.test(link)) return toast.error('Link must start with http:// or https://');
     setBusy(true);
     try {
-      await api(`/assignments/${id}/submit`, { method: 'POST', body: { content, link_url: link } });
+      const form = new FormData();
+      form.append('content', content);
+      form.append('link_url', link);
+      form.append('keep_file', String(!!existingFile));
+      if (file) form.append('file', file);
+      await api(`/assignments/${id}/submit`, { method: 'POST', body: form });
+      setFile(null);
       toast.success('Assignment submitted!');
       await load();
     } catch (err) { toast.error(err.message); }
@@ -78,6 +88,7 @@ export default function AssignmentDetail() {
                   </div>
                   {s.content && <p className="pre-wrap">{s.content}</p>}
                   {s.link_url && <p><a href={s.link_url} target="_blank" rel="noreferrer">{s.link_url} ↗</a></p>}
+                  {s.file_url && <p><a href={s.file_url} target="_blank" rel="noreferrer" className="file-link">{s.file_name} ↓</a></p>}
                   <GradeForm sub={s} max={a.max_points} onSaved={load} />
                 </div>
               );
@@ -111,6 +122,15 @@ export default function AssignmentDetail() {
           <form onSubmit={submit} className="form">
             <label>Answer / notes<textarea className="input" rows={8} value={content} onChange={(e) => setContent(e.target.value)} disabled={locked} placeholder="Write your answer here…" /></label>
             <label>Link (GitHub repository, Google Drive, deployed project URL…)<input className="input" type="url" value={link} onChange={(e) => setLink(e.target.value)} disabled={locked} placeholder="https://" /></label>
+            {sub?.file_url && keepFile && !file && (
+              <p className="small">Attached: <a href={sub.file_url} target="_blank" rel="noreferrer" className="file-link">{sub.file_name} ↓</a>
+                {!locked && <button type="button" className="link-btn danger-link" onClick={() => setKeepFile(false)}> remove</button>}</p>
+            )}
+            {!locked && (
+              <label>File (PDF, ZIP, DOCX, PNG or JPG, max 10 MB)
+                <input className="input" type="file" accept=".pdf,.zip,.docx,.png,.jpg,.jpeg" onChange={(e) => setFile(e.target.files[0] || null)} />
+              </label>
+            )}
             {!locked && <button className="btn btn-primary" disabled={busy}>{busy ? 'Submitting…' : sub ? 'Update submission' : 'Submit assignment'}</button>}
           </form>
         </section>

@@ -44,6 +44,7 @@ export default function Submissions() {
                   <>
                     {s.content && <p className="pre-wrap">{s.content}</p>}
                     {s.link_url && <p><a href={s.link_url} target="_blank" rel="noreferrer">{s.link_url} ↗</a></p>}
+                    {s.file_url && <p><a href={s.file_url} target="_blank" rel="noreferrer" className="file-link">{s.file_name} ↓</a></p>}
                     <GradeForm sub={s} max={s.assignment.max_points} onSaved={() => { setOpen(null); load(); }} />
                   </>
                 )}

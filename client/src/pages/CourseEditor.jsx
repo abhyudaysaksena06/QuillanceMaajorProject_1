@@ -4,10 +4,13 @@ import toast from 'react-hot-toast';
 import { api } from '../api';
 import Loader from '../components/Loader';
 import ProgressBar from '../components/ProgressBar';
+import QuizBuilder from '../components/QuizBuilder';
+import { useAuth } from '../context/AuthContext';
+import { downloadCsv } from '../csv';
 import { formatDate, toLocalInput, RESOURCE_TYPES } from '../utils';
 
 const emptyCourse = { title: '', description: '', category: '', level: 'Beginner', thumbnail_url: '', duration: '', published: false };
-const emptyLesson = { title: '', content: '', video_url: '', duration_minutes: '', resources: [] };
+const emptyLesson = { title: '', content: '', video_url: '', duration_minutes: '', resources: [], quiz: [], pass_mark: 60 };
 const emptyAssignment = { title: '', description: '', due_date: '', max_points: 100 };
 
 export default function CourseEditor() {
@@ -21,6 +24,9 @@ export default function CourseEditor() {
   const [lesson, setLesson] = useState(null);
   const [assignment, setAssignment] = useState(null);
   const [busy, setBusy] = useState(false);
+  const { user } = useAuth();
+  const [instructors, setInstructors] = useState([]);
+  const [announce, setAnnounce] = useState({ title: '', message: '' });
 
   const load = useCallback(async () => {
     const c = await api(`/courses/${id}`);
@@ -28,6 +34,35 @@ export default function CourseEditor() {
     setForm({ ...emptyCourse, ...Object.fromEntries(Object.keys(emptyCourse).map((k) => [k, c[k] ?? emptyCourse[k]])) });
     api(`/courses/${id}/students`).then(setStudents);
   }, [id]);
+
+  useEffect(() => { if (user.role === 'admin' && !isNew) api('/admin/instructors').then(setInstructors); }, [user.role, isNew]);
+
+  const transfer = async (instructorId) => {
+    if (!instructorId || !confirm('Transfer this course to another instructor?')) return;
+    try {
+      await api(`/admin/courses/${id}/owner`, { method: 'PATCH', body: { instructor_id: instructorId } });
+      toast.success('Course ownership transferred');
+      load();
+    } catch (err) { toast.error(err.message); }
+  };
+
+  const exportGradebook = async () => {
+    const g = await api(`/courses/${id}/gradebook`);
+    downloadCsv(`${g.course.title.replace(/\W+/g, '_')}_gradebook.csv`, [
+      ['Name', 'Email', 'Enrolled', 'Progress %', 'Completed', 'Certificate', ...g.assignments.map((a) => `${a.title} (/${a.max_points})`)],
+      ...g.rows.map((r) => [r.name, r.email, r.enrolled_at?.slice(0, 10), r.progress, r.completed_at?.slice(0, 10) || '', r.certificate_id || '',
+        ...g.assignments.map((a) => r.marks[a.id] ?? '')]),
+    ]);
+  };
+
+  const sendAnnouncement = async (e) => {
+    e.preventDefault();
+    try {
+      const r = await api(`/courses/${id}/announce`, { method: 'POST', body: announce });
+      toast.success(`Sent to ${r.sent} student${r.sent === 1 ? '' : 's'}`);
+      setAnnounce({ title: '', message: '' });
+    } catch (err) { toast.error(err.message); }
+  };
 
   useEffect(() => { if (!isNew) load().catch((e) => { toast.error(e.message); navigate('/teach'); }); }, [isNew, load, navigate]);
   if (!isNew && !course) return <Loader />;
@@ -65,6 +100,8 @@ export default function CourseEditor() {
       ...fields,
       duration_minutes: lesson.duration_minutes ? Number(lesson.duration_minutes) : null,
       resources: (lesson.resources || []).filter((r) => r.url.trim()),
+      quiz: lesson.quiz || [],
+      pass_mark: lesson.pass_mark ?? 60,
     };
     try {
       if (lessonId) await api(`/lessons/${lessonId}`, { method: 'PATCH', body });
@@ -148,6 +185,13 @@ export default function CourseEditor() {
             <button className="btn btn-primary" disabled={busy}>{isNew ? 'Create course' : 'Save changes'}</button>
             {!isNew && <button type="button" className="btn btn-danger" onClick={deleteCourse}>Delete course</button>}
           </div>
+          {user.role === 'admin' && !isNew && instructors.length > 0 && (
+            <label>Course owner (admin only)
+              <select className="input" value={course.instructor_id} onChange={(e) => transfer(e.target.value)}>
+                {instructors.map((i) => <option key={i.id} value={i.id}>{i.name} · {i.email}</option>)}
+              </select>
+            </label>
+          )}
         </form>
       )}
 
@@ -179,6 +223,8 @@ export default function CourseEditor() {
                 })}
                 <button type="button" className="btn btn-ghost btn-sm" onClick={() => setLesson({ ...lesson, resources: [...(lesson.resources || []), { type: 'pdf', label: '', url: '' }] })}>+ material</button>
               </div>
+              <QuizBuilder quiz={lesson.quiz || []} passMark={lesson.pass_mark ?? 60}
+                onChange={(quiz, pass_mark) => setLesson({ ...lesson, quiz, pass_mark })} />
               <div className="form-actions">
                 <button className="btn btn-primary">Save module</button>
                 <button type="button" className="btn btn-ghost" onClick={() => setLesson(null)}>Cancel</button>
@@ -189,7 +235,7 @@ export default function CourseEditor() {
             {course.lessons.map((l, i) => (
               <li key={l.id}>
                 <span className="lesson-index">{i + 1}</span>
-                <span className="grow">{l.title}</span>
+                <span className="grow">{l.title}{l.quiz?.length > 0 && <span className="tag tag-muted" style={{ marginLeft: '.6rem' }}>Quiz · {l.quiz.length}</span>}</span>
                 <button className="icon-btn" onClick={() => moveLesson(i, -1)} disabled={i === 0} title="Move up">↑</button>
                 <button className="icon-btn" onClick={() => moveLesson(i, 1)} disabled={i === course.lessons.length - 1} title="Move down">↓</button>
                 <button className="btn btn-ghost btn-sm" onClick={() => setLesson(l)}>Edit</button>
@@ -235,8 +281,21 @@ export default function CourseEditor() {
       )}
 
       {tab === 'students' && (
+        <>
+        <form className="card form" onSubmit={sendAnnouncement}>
+          <h2 style={{ margin: 0 }}>Announcement</h2>
+          <p className="muted small" style={{ margin: 0 }}>Sent as a notification to every enrolled student.</p>
+          <div className="form-row">
+            <label>Title<input className="input" value={announce.title} onChange={(e) => setAnnounce({ ...announce, title: e.target.value })} required /></label>
+            <label>Message<input className="input" value={announce.message} onChange={(e) => setAnnounce({ ...announce, message: e.target.value })} /></label>
+          </div>
+          <div className="form-actions"><button className="btn btn-primary btn-sm" disabled={!students.length}>Send to {students.length} students</button></div>
+        </form>
         <section className="card table-wrap">
-          <h2>Enrolled students ({students.length})</h2>
+          <div className="card-header">
+            <h2 style={{ margin: 0 }}>Enrolled students ({students.length})</h2>
+            <button className="btn btn-ghost btn-sm" onClick={exportGradebook} disabled={!students.length}>Export gradebook CSV</button>
+          </div>
           <table className="table">
             <thead><tr><th>Student</th><th>Enrolled</th><th>Modules</th><th>Status</th><th className="w-40">Progress</th></tr></thead>
             <tbody>
@@ -253,6 +312,7 @@ export default function CourseEditor() {
             </tbody>
           </table>
         </section>
+        </>
       )}
     </>
   );
