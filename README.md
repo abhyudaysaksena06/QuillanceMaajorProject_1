@@ -34,6 +34,8 @@ Online learning is often spread across chat groups, drive folders and spreadshee
 ### Authentication and roles
 - **Registration and login with email and password**, with form validation, clear errors for wrong credentials or an already-registered email, and **password reset** by email. Firebase stores passwords as salted hashes (scrypt), and they never reach our server or database.
 - One-click **Google Sign-In** through Firebase.
+- **One account per email**: signing in with Google or with email + password reaches the same profile, courses and progress. The server re-links accounts by email only when Firebase has verified that email.
+- **Sign-in & security** on the Profile page: create a password (for Google users), change it (asks for the current one), and link a Google account.
 - Each API request carries a Firebase **ID token**. The Express server checks it with the Firebase Admin SDK before it touches the database.
 - The user record is created in Supabase automatically on first login. The user then picks a role (**Student** or **Instructor**) during onboarding.
 - **Role-based access control (RBAC)** on both the server (`requireRole` middleware plus ownership checks) and the client (protected routes).

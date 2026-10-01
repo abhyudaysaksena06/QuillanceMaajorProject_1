@@ -27,14 +27,36 @@ export async function authenticate(req, res, next) {
     if (error) throw error;
 
     let user = existing;
-    const isAdminEmail = adminEmails.includes((decoded.email || '').toLowerCase());
+    const email = (decoded.email || '').toLowerCase();
+    const isAdminEmail = adminEmails.includes(email);
+
+    if (!user && email && decoded.email_verified) {
+      const { data: sameEmail, error: emailError } = await supabase
+        .from('users')
+        .select('*')
+        .ilike('email', email.replace(/[\\%_]/g, (c) => `\\${c}`))
+        .order('created_at')
+        .limit(1)
+        .maybeSingle();
+      if (emailError) throw emailError;
+      if (sameEmail) {
+        const { data: relinked, error: relinkError } = await supabase
+          .from('users')
+          .update({ firebase_uid: decoded.uid })
+          .eq('id', sameEmail.id)
+          .select()
+          .single();
+        if (relinkError) throw relinkError;
+        user = relinked;
+      }
+    }
 
     if (!user) {
       const { data, error: insertError } = await supabase
         .from('users')
         .insert({
           firebase_uid: decoded.uid,
-          email: decoded.email,
+          email,
           name: decoded.name || decoded.email?.split('@')[0],
           avatar_url: decoded.picture || null,
           role: isAdminEmail ? 'admin' : 'student',

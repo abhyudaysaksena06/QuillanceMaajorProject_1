@@ -8,11 +8,11 @@ const firebaseMessages = {
   'auth/invalid-credential': 'Incorrect email or password.',
   'auth/wrong-password': 'Incorrect email or password.',
   'auth/user-not-found': 'No account found with this email.',
-  'auth/email-already-in-use': 'An account with this email already exists. Please sign in.',
   'auth/weak-password': 'Password must be at least 6 characters.',
   'auth/invalid-email': 'Please enter a valid email address.',
   'auth/too-many-requests': 'Too many attempts. Please try again later.',
-  'auth/account-exists-with-different-credential': 'This email is registered with a different sign-in method.',
+  'auth/account-exists-with-different-credential': 'This email already has an account. Sign in with your password, then link Google from your Profile.',
+  'auth/email-already-in-use': 'An account with this email already exists. Sign in (or use Google), then create a password from your Profile.',
 };
 const friendly = (err) => firebaseMessages[err.code] || err.message;
 

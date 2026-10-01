@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import {
   onAuthStateChanged, signInWithPopup, signOut, createUserWithEmailAndPassword,
-  signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile,
+  signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, EmailAuthProvider,
+  linkWithCredential, linkWithPopup, reauthenticateWithCredential, reauthenticateWithPopup, updatePassword,
 } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import { api } from '../api';
@@ -47,8 +48,36 @@ export function AuthProvider({ children }) {
   };
   const logout = () => signOut(auth);
 
+  const providers = () => (auth.currentUser?.providerData || []).map((p) => p.providerId);
+
+  const withRecentLogin = async (action) => {
+    try {
+      return await action();
+    } catch (err) {
+      if (err.code !== 'auth/requires-recent-login') throw err;
+      await reauthenticateWithPopup(auth.currentUser, googleProvider);
+      return action();
+    }
+  };
+
+  const createPassword = (password) => withRecentLogin(() =>
+    linkWithCredential(auth.currentUser, EmailAuthProvider.credential(auth.currentUser.email, password)));
+
+  const changePassword = async (currentPassword, newPassword) => {
+    await reauthenticateWithCredential(auth.currentUser, EmailAuthProvider.credential(auth.currentUser.email, currentPassword));
+    await updatePassword(auth.currentUser, newPassword);
+  };
+
+  const linkGoogle = async () => {
+    const result = await linkWithPopup(auth.currentUser, googleProvider);
+    if (result.user.email?.toLowerCase() !== auth.currentUser.email?.toLowerCase()) {
+      throw new Error('Choose the Google account with the same email address.');
+    }
+    return result;
+  };
+
   return (
-    <AuthContext.Provider value={{ firebaseUser, user: profile, setUser: setProfile, loading, error, login, loginWithEmail, register, resetPassword, logout, refreshProfile }}>
+    <AuthContext.Provider value={{ firebaseUser, user: profile, setUser: setProfile, loading, error, login, loginWithEmail, register, resetPassword, logout, refreshProfile, providers, createPassword, changePassword, linkGoogle }}>
       {children}
     </AuthContext.Provider>
   );

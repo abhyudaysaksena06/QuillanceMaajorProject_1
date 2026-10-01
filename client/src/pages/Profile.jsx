@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
+import SecuritySettings from '../components/SecuritySettings';
 import { formatDate } from '../utils';
 
 export default function Profile() {
@@ -66,6 +67,7 @@ export default function Profile() {
         <label>Bio<textarea className="input" rows={4} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell others about yourself" /></label>
         <div className="form-actions"><button className="btn btn-primary" disabled={busy}>Save profile</button></div>
       </form>
+      <SecuritySettings />
       {certificates.length > 0 && (
         <section className="card">
           <h2>Certificates</h2>

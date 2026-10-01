@@ -29,4 +29,7 @@ Manual tests against the project brief's checklist. Tick them off before you sub
 | 23 | Notifications | Grade a submission / post an assignment | Bell count increases for the student(s) |
 | 24 | CSV export | Instructor exports the gradebook | CSV opens in Excel with marks per assignment |
 | 25 | Ownership transfer | Admin changes a course's owner | New owner can edit it; old owner cannot |
+| 26 | Create password | Sign in with Google → Profile → Create password → sign out → sign in with email + that password | Same dashboard, courses and progress |
+| 27 | Change password | Profile → Change password with a wrong current password, then the right one | Error, then success; old password stops working |
+| 28 | Same account | Register with email + password, sign out, sign in with Google using the same Gmail | Same courses and progress (Firebase may ask you to create the password again from Profile) |
 
