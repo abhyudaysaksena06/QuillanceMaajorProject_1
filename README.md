@@ -3,8 +3,11 @@
 A full-stack **Learning Management System (LMS)** built as the Quillance Infotech Full Stack Development major project.
 Students enroll in courses, study ordered modules, submit assignments and track their progress. Instructors build courses and review work. Admins manage users and roles.
 
-> **Author:** Abhyuday Saksena · Full Stack Development Intern, Quillance Infotech Pvt. Ltd.
-> **Live demo:** _add your deployment link here_
+> **Major Project:** Full Stack Development · Quillance Infotech Pvt. Ltd.
+> **Student:** Abhyuday Saksena
+> **Live application:** https://quillancemaajorproject1-client.vercel.app
+> **Repository:** https://github.com/abhyudaysaksena06/QuillanceMaajorProject_1
+> **Full documentation (PDF):** [submission/LearnSphere_LMS_Documentation.pdf](submission/LearnSphere_LMS_Documentation.pdf)
 
 ## Problem statement & objectives
 Online learning is often spread across chat groups, drive folders and spreadsheets. There's no single place to see course content, deadlines, submissions and progress. LearnSphere brings this into one platform with secure, role-based dashboards.
