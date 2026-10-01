@@ -54,7 +54,7 @@ Online learning is often spread across chat groups, drive folders and spreadshee
 - **Course discussion**: ask questions, reply, upvote; the instructor can mark the accepted answer.
 - **Personal notes** per course, saved in the browser and exportable as `.txt`.
 - **Progress tracking**: percentage, progress bar and status (Not started / In progress / Completed) per course and overall.
-- **Assignments**: see instructions, deadline and maximum marks. Submit text, a GitHub/Drive/project link and/or a **file** (PDF, ZIP, DOCX, PNG, JPG up to 10 MB, stored in Supabase Storage). Update the submission until it's graded. See marks, feedback and status (Submitted / Graded / Resubmission requested / Missed / Late).
+- **Assignments**: see instructions, deadline and maximum marks. Submit text, a GitHub/Drive/project link and/or a **file** (PDF, ZIP, DOCX, PNG, JPG up to 10 MB, stored in Supabase Storage). Turn work in straight from the **Assignments** list (To do / Submitted / Graded tabs) or from the assignment page, and update it until it's graded. See marks, feedback and status (Submitted / Graded / Resubmission requested / Missed / Late).
 
 ### Instructor
 - **Course management**: create, edit and delete courses. Set title, description, category, instructor, duration, difficulty, image, and draft or published status.
