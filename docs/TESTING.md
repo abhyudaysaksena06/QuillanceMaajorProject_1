@@ -19,5 +19,5 @@ Manual tests against the project brief's checklist. Tick them off before you sub
 | 13 | Review | Instructor grades with marks > max, then a valid mark | Error, then "Graded: x/max" for the student |
 | 14 | Resubmission | Instructor requests a resubmission; student resubmits | Status goes Resubmission requested → Submitted |
 | 15 | Deactivated user | Admin deactivates a user, who then calls the API | `403` |
-| 16 | Responsive | Resize to about 375px wide | Sidebar becomes ☰ menu; no horizontal scroll |
+| 16 | Responsive | Resize to about 375px wide | Sidebar becomes  menu; no horizontal scroll |
 | 17 | Persistence | Restart the server, refresh the browser | All data is still there (Supabase) |

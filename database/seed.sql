@@ -1,10 +1,4 @@
--- =====================================================================
--- Sample data: the "Full Stack Development" course from the project brief.
--- Run AFTER schema.sql. The demo instructor is a placeholder account that
--- cannot log in; sign in as an admin (ADMIN_EMAILS) to edit these courses,
--- or reassign them to a real instructor:
---   update courses set instructor_id = (select id from users where email = 'you@example.com');
--- =====================================================================
+-- sample courses, modules and assignments (run after schema.sql)
 
 insert into public.users (id, firebase_uid, email, name, role, onboarded, bio)
 values ('00000000-0000-0000-0000-000000000001', 'seed-demo-instructor', 'instructor@learnsphere.demo',

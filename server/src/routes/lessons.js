@@ -57,7 +57,6 @@ router.delete('/:id', requireRole('instructor', 'admin'), asyncHandler(async (re
   res.status(204).end();
 }));
 
-// Progress tracking: mark a lesson complete / incomplete.
 router.post('/:id/complete', asyncHandler(async (req, res) => {
   const lesson = await getLesson(req.params.id);
   if (!(await isEnrolled(req.user.id, lesson.course_id))) throw httpError(403, 'Enroll in the course first');

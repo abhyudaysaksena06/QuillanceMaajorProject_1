@@ -10,7 +10,6 @@ export function relativeDue(d) {
   return `Due in ${days} days`;
 }
 
-/** Converts a YouTube/Vimeo URL into an embeddable URL. */
 export function toEmbedUrl(url) {
   if (!url) return null;
   const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/);
@@ -20,7 +19,6 @@ export function toEmbedUrl(url) {
   return null;
 }
 
-/** ISO string -> value for <input type="datetime-local"> */
 export function toLocalInput(iso) {
   if (!iso) return '';
   const d = new Date(iso);
@@ -31,7 +29,6 @@ export const RESOURCE_TYPES = {
   notes: 'Notes', pdf: 'PDF', video: 'Video', code: 'Source code', reference: 'Reference', exercise: 'Exercise',
 };
 
-/** Badge for a student's submission state. */
 export function submissionBadge(sub, maxPoints, dueDate) {
   if (!sub) {
     return dueDate && new Date(dueDate) < new Date()
@@ -44,7 +41,6 @@ export function submissionBadge(sub, maxPoints, dueDate) {
 
 export const isLate = (sub, dueDate) => Boolean(sub && dueDate && new Date(sub.submitted_at) > new Date(dueDate));
 
-/** Short, stable pseudo commit hash for the activity log. */
 export function shortHash(str) {
   let h = 2166136261;
   for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619);

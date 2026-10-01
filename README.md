@@ -1,4 +1,4 @@
-# 🎓 LearnSphere: Learning Management System
+# LearnSphere: Learning Management System
 
 A full-stack **Learning Management System (LMS)** built as the Quillance Infotech Full Stack Development major project.
 Students enroll in courses, study ordered modules, submit assignments and track their progress. Instructors build courses and review work. Admins manage users and roles.
@@ -6,7 +6,7 @@ Students enroll in courses, study ordered modules, submit assignments and track 
 > **Author:** Abhyuday Saksena · Full Stack Development Intern, Quillance Infotech Pvt. Ltd.
 > **Live demo:** _add your deployment link here_
 
-## 🎯 Problem statement & objectives
+## Problem statement & objectives
 Online learning is often spread across chat groups, drive folders and spreadsheets. There's no single place to see course content, deadlines, submissions and progress. LearnSphere brings this into one platform with secure, role-based dashboards.
 
 - Centralised platform for courses, modules, assignments and students
@@ -26,7 +26,7 @@ Online learning is often spread across chat groups, drive folders and spreadshee
 
 ---
 
-## ✨ Features
+## Features
 
 ### Authentication and roles
 - **Registration and login with email and password**, with form validation, clear errors for wrong credentials or an already-registered email, and **password reset** by email. Firebase stores passwords as salted hashes (scrypt), and they never reach our server or database.
@@ -61,7 +61,7 @@ Online learning is often spread across chat groups, drive folders and spreadshee
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌──────────────────────┐   Google popup   ┌───────────────────────┐
@@ -110,7 +110,7 @@ Online learning is often spread across chat groups, drive folders and spreadshee
 
 ---
 
-## 🔑 Demo accounts
+## Demo accounts
 After running `npm run seed:demo` (see [docs/RUN_LOCALLY.md](docs/RUN_LOCALLY.md)), every account uses the password **`Demo@1234`**:
 
 | Role | Email |
@@ -120,7 +120,7 @@ After running `npm run seed:demo` (see [docs/RUN_LOCALLY.md](docs/RUN_LOCALLY.md
 | Instructor | `instructor@learnsphere.demo` |
 | Admin | `admin@learnsphere.demo` |
 
-## ⚡ Quick start
+## Quick start
 ```bash
 npm run setup      # install root, server and client packages
 npm run seed:demo  # create demo accounts (after filling in the .env files)
@@ -128,7 +128,7 @@ npm run dev        # API on :5000 and web app on :5173, together
 ```
 Full step-by-step guide: **[docs/RUN_LOCALLY.md](docs/RUN_LOCALLY.md)**
 
-## 🚀 Getting started
+## Getting started
 
 ### Prerequisites
 Node.js 18+, a [Firebase](https://console.firebase.google.com) project, and a [Supabase](https://supabase.com) project.
@@ -164,31 +164,31 @@ Sign in with Google. If your email is in `ADMIN_EMAILS`, you become an admin str
 
 ---
 
-## ☁️ Deployment
+## Deployment
 - **Backend → Render / Railway**: root directory `server`, start command `npm start`. Set every variable from `server/.env.example`, and set `CLIENT_URL` to your frontend URL.
 - **Frontend → Vercel / Netlify**: root directory `client`, build `npm run build`, output `dist`. Set the `VITE_*` variables, with `VITE_API_URL` pointing at the backend URL. `vercel.json` handles SPA routing.
 - Add the frontend domain to Firebase **Authorized domains**.
 
-## 📡 API
+## API
 See [`docs/API.md`](docs/API.md).
 
-## 🎬 Demo video
+## Demo video
 See [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) for a 60-second walkthrough script.
 
-## 🖼️ Screenshots
+## Screenshots
 Put screenshots in [`docs/screenshots/`](docs/screenshots/) and link them here, for example:
 
 | Home | Student dashboard | Module view |
 |---|---|---|
 | ![](docs/screenshots/home.png) | ![](docs/screenshots/student-dashboard.png) | ![](docs/screenshots/module.png) |
 
-## ✅ Testing
+## Testing
 See [`docs/TESTING.md`](docs/TESTING.md) for the test checklist.
 
-## 🔭 Future improvements
+## Future improvements
 Quizzes, certificate generation, email notifications, a discussion forum, course ratings, dark mode, file uploads (Supabase Storage) and analytics charts.
 
-## 🔐 Security highlights
+## Security highlights
 - Firebase ID tokens are checked on **every** API request. Tokens are short-lived and refreshed automatically.
 - The Supabase service-role key exists only on the server. RLS blocks direct anon access.
 - Server-side ownership checks: instructors can change only their own courses, and students only their own submissions.

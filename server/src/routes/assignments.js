@@ -12,7 +12,6 @@ async function getAssignment(id) {
   return a;
 }
 
-// Assignments across all of the student's enrolled courses.
 router.get('/', asyncHandler(async (req, res) => {
   const courseIds = unwrap(await supabase.from('enrollments').select('course_id').eq('user_id', req.user.id))
     .map((e) => e.course_id);
@@ -24,7 +23,6 @@ router.get('/', asyncHandler(async (req, res) => {
   res.json(assignments.map((a) => ({ ...a, submission: subs.find((s) => s.assignment_id === a.id) || null })));
 }));
 
-// All submissions across the courses the instructor manages (admins: everything).
 router.get('/submissions/all', requireRole('instructor', 'admin'), asyncHandler(async (req, res) => {
   let coursesQuery = supabase.from('courses').select('id');
   if (req.user.role !== 'admin') coursesQuery = coursesQuery.eq('instructor_id', req.user.id);
@@ -81,7 +79,6 @@ router.delete('/:id', requireRole('instructor', 'admin'), asyncHandler(async (re
   res.status(204).end();
 }));
 
-// Student submits (or resubmits, until graded).
 router.post('/:id/submit', asyncHandler(async (req, res) => {
   const a = await getAssignment(req.params.id);
   if (!(await isEnrolled(req.user.id, a.course_id))) throw httpError(403, 'Enroll in the course first');
@@ -99,14 +96,12 @@ router.post('/:id/submit', asyncHandler(async (req, res) => {
   res.status(201).json(row);
 }));
 
-// Instructor grades a submission.
 router.patch('/submissions/:submissionId/grade', requireRole('instructor', 'admin'), asyncHandler(async (req, res) => {
   const sub = unwrap(await supabase.from('submissions').select('*').eq('id', req.params.submissionId).maybeSingle());
   if (!sub) throw httpError(404, 'Submission not found');
   const a = await getAssignment(sub.assignment_id);
   await assertCanManage(req.user, a.course_id);
 
-  // status 'graded' requires marks; 'resubmit' sends it back to the student with feedback.
   const status = req.body.status || 'graded';
   if (!['graded', 'resubmit'].includes(status)) throw httpError(400, 'Invalid status');
   let grade = null;

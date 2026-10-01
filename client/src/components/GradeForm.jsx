@@ -2,7 +2,6 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { api } from '../api';
 
-/** Instructor review: award marks, or send back for resubmission, with feedback. */
 export default function GradeForm({ sub, max, onSaved }) {
   const [status, setStatus] = useState(sub.status === 'resubmit' ? 'resubmit' : 'graded');
   const [grade, setGrade] = useState(sub.grade ?? '');

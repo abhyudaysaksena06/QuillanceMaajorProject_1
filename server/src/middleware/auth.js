@@ -6,10 +6,6 @@ const adminEmails = (process.env.ADMIN_EMAILS || '')
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);
 
-/**
- * Verifies the Firebase ID token from the Authorization header, then loads
- * (or creates on first sign-in) the matching user row in Supabase.
- */
 export async function authenticate(req, res, next) {
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;

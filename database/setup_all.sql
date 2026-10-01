@@ -1,17 +1,6 @@
--- LearnSphere LMS: full Supabase setup (schema + sample data). Paste into Supabase SQL Editor and click Run.
-
--- =====================================================================
--- LearnSphere LMS - Supabase (PostgreSQL) schema
--- Run in Supabase Dashboard -> SQL Editor.
--- Authentication is handled by Firebase (Google Sign-In). The Express
--- API verifies Firebase ID tokens and talks to Supabase with the
--- service-role key, so RLS is enabled with NO public policies: the
--- anon key cannot read or write any table directly.
--- =====================================================================
-
 create extension if not exists "pgcrypto";
 
--- ---------- users ----------
+-- users
 create table if not exists public.users (
   id            uuid primary key default gen_random_uuid(),
   firebase_uid  text not null unique,
@@ -25,7 +14,7 @@ create table if not exists public.users (
   created_at    timestamptz not null default now()
 );
 
--- ---------- courses ----------
+-- courses
 create table if not exists public.courses (
   id             uuid primary key default gen_random_uuid(),
   title          text not null,
@@ -43,7 +32,7 @@ create table if not exists public.courses (
 create index if not exists courses_instructor_idx on public.courses(instructor_id);
 create index if not exists courses_published_idx on public.courses(published);
 
--- ---------- lessons ----------
+-- lessons
 create table if not exists public.lessons (
   id                uuid primary key default gen_random_uuid(),
   course_id         uuid not null references public.courses(id) on delete cascade,
@@ -52,12 +41,12 @@ create table if not exists public.lessons (
   video_url         text,
   position          integer not null default 1,
   duration_minutes  integer,
-  resources         jsonb not null default '[]'::jsonb,  -- [{ "type": "pdf", "label": "...", "url": "..." }]
+  resources         jsonb not null default '[]'::jsonb,
   created_at        timestamptz not null default now()
 );
 create index if not exists lessons_course_idx on public.lessons(course_id, position);
 
--- ---------- enrollments ----------
+-- enrollments
 create table if not exists public.enrollments (
   id           uuid primary key default gen_random_uuid(),
   user_id      uuid not null references public.users(id) on delete cascade,
@@ -67,7 +56,7 @@ create table if not exists public.enrollments (
 );
 create index if not exists enrollments_course_idx on public.enrollments(course_id);
 
--- ---------- lesson progress ----------
+-- lesson progress
 create table if not exists public.lesson_progress (
   id            uuid primary key default gen_random_uuid(),
   user_id       uuid not null references public.users(id) on delete cascade,
@@ -76,7 +65,7 @@ create table if not exists public.lesson_progress (
   unique (user_id, lesson_id)
 );
 
--- ---------- assignments ----------
+-- assignments
 create table if not exists public.assignments (
   id           uuid primary key default gen_random_uuid(),
   course_id    uuid not null references public.courses(id) on delete cascade,
@@ -88,7 +77,7 @@ create table if not exists public.assignments (
 );
 create index if not exists assignments_course_idx on public.assignments(course_id);
 
--- ---------- submissions ----------
+-- submissions
 create table if not exists public.submissions (
   id             uuid primary key default gen_random_uuid(),
   assignment_id  uuid not null references public.assignments(id) on delete cascade,
@@ -103,7 +92,7 @@ create table if not exists public.submissions (
   unique (assignment_id, student_id)
 );
 
--- ---------- Row Level Security ----------
+-- row level security
 alter table public.users            enable row level security;
 alter table public.courses          enable row level security;
 alter table public.lessons          enable row level security;
@@ -111,15 +100,9 @@ alter table public.enrollments      enable row level security;
 alter table public.lesson_progress  enable row level security;
 alter table public.assignments      enable row level security;
 alter table public.submissions      enable row level security;
--- No policies are created on purpose: only the service role (the API) has access.
+-- no policies: only the server (service role key) can read or write
 
--- =====================================================================
--- Sample data: the "Full Stack Development" course from the project brief.
--- Run AFTER schema.sql. The demo instructor is a placeholder account that
--- cannot log in; sign in as an admin (ADMIN_EMAILS) to edit these courses,
--- or reassign them to a real instructor:
---   update courses set instructor_id = (select id from users where email = 'you@example.com');
--- =====================================================================
+-- sample courses, modules and assignments (run after schema.sql)
 
 insert into public.users (id, firebase_uid, email, name, role, onboarded, bio)
 values ('00000000-0000-0000-0000-000000000001', 'seed-demo-instructor', 'instructor@learnsphere.demo',

@@ -16,7 +16,6 @@ function validateCourse(body, partial = false) {
   if (body.level !== undefined && !LEVELS.includes(body.level)) throw httpError(400, 'Invalid level');
 }
 
-// Catalog: published courses (+ search/category filter).
 router.get('/', asyncHandler(async (req, res) => {
   let query = supabase
     .from('courses')
@@ -33,7 +32,6 @@ router.get('/', asyncHandler(async (req, res) => {
   res.json(courses.map((c) => ({ ...c, is_enrolled: enrolledIds.has(c.id) })));
 }));
 
-// Courses the instructor owns (admins see all).
 router.get('/mine', requireRole('instructor', 'admin'), asyncHandler(async (req, res) => {
   let query = supabase
     .from('courses')
@@ -43,7 +41,6 @@ router.get('/mine', requireRole('instructor', 'admin'), asyncHandler(async (req,
   res.json(unwrap(await query));
 }));
 
-// Courses the student is enrolled in, with progress.
 router.get('/enrolled', asyncHandler(async (req, res) => {
   const rows = unwrap(
     await supabase
@@ -64,7 +61,6 @@ router.get('/enrolled', asyncHandler(async (req, res) => {
   }));
 }));
 
-// Course detail with lessons, assignments and the caller's progress.
 router.get('/:id', asyncHandler(async (req, res) => {
   const course = unwrap(
     await supabase
@@ -105,7 +101,6 @@ router.get('/:id', asyncHandler(async (req, res) => {
     can_manage: manage,
     is_enrolled: enrolled,
     student_count: studentCount || 0,
-    // Non-enrolled visitors see the syllabus but not lesson content.
     lessons: lessons.map((l) => (canView ? l : { id: l.id, title: l.title, position: l.position, duration_minutes: l.duration_minutes })),
     assignments: canView ? assignments.map((a) => ({ ...a, submission: submissions.find((s) => s.assignment_id === a.id) || null })) : [],
     completed_lesson_ids: completed,
@@ -156,7 +151,6 @@ router.delete('/:id/enroll', asyncHandler(async (req, res) => {
   res.status(204).end();
 }));
 
-// Roster with per-student progress, for the course's instructor.
 router.get('/:id/students', requireRole('instructor', 'admin'), asyncHandler(async (req, res) => {
   await assertCanManage(req.user, req.params.id);
   const rows = unwrap(await supabase.from('enrollments')

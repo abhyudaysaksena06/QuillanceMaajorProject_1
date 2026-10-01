@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 
-/** Fades its children up once they scroll into view. */
 export default function Reveal({ children, delay = 0, as: Tag = 'div', className = '', ...rest }) {
   const ref = useRef(null);
   const [shown, setShown] = useState(false);

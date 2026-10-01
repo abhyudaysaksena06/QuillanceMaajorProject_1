@@ -2,10 +2,8 @@ import { supabase } from '../config/supabase.js';
 
 export const httpError = (status, message) => Object.assign(new Error(message), { status });
 
-/** Wraps async handlers so thrown errors reach the Express error handler. */
 export const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
-/** Throws Supabase errors, returns data otherwise. */
 export const unwrap = ({ data, error }) => {
   if (error) throw httpError(400, error.message);
   return data;
@@ -17,7 +15,6 @@ export async function getCourse(courseId) {
   return course;
 }
 
-/** Instructor who owns the course, or an admin. */
 export function canManage(user, course) {
   return user.role === 'admin' || course.instructor_id === user.id;
 }
@@ -35,6 +32,5 @@ export async function isEnrolled(userId, courseId) {
   return Boolean(row);
 }
 
-/** Picks only allowed keys from a request body. */
 export const pick = (obj, keys) =>
   Object.fromEntries(keys.filter((k) => obj[k] !== undefined).map((k) => [k, obj[k]]));

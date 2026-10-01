@@ -16,7 +16,6 @@ import { supabase } from './config/supabase.js';
 const app = express();
 
 app.use(helmet());
-// Accept "https://a.app, https://b.app/" style lists: trim spaces and trailing slashes.
 const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
   .split(',').map((o) => o.trim().replace(/\/+$/, '')).filter(Boolean);
 app.use(cors({ origin: allowedOrigins, credentials: true }));
@@ -25,7 +24,6 @@ app.use(morgan('dev'));
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
-// Public catalog preview for the home page (no login needed).
 app.get('/api/public/courses', async (_req, res, next) => {
   try {
     const { data, error } = await supabase
@@ -37,7 +35,6 @@ app.get('/api/public/courses', async (_req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// Every route below requires a valid Firebase ID token.
 app.use('/api', authenticate);
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
@@ -48,7 +45,6 @@ app.use('/api/admin', adminRoutes);
 
 app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
 
-// eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(err.status || 500).json({ error: err.message || 'Internal server error' });

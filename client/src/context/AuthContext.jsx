@@ -40,7 +40,6 @@ export function AuthProvider({ children }) {
   const loginWithEmail = (email, password) => signInWithEmailAndPassword(auth, email, password);
   const resetPassword = (email) => sendPasswordResetEmail(auth, email);
 
-  // Firebase stores and hashes the password; we then save the display name to our profile.
   const register = async (name, email, password) => {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName: name });

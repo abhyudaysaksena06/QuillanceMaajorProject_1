@@ -1,11 +1,3 @@
-/**
- * Creates demo accounts in Firebase Auth + matching profiles in Supabase,
- * then gives the student some enrollments, progress and a graded submission.
- *
- * Usage (from /server):  npm run seed:demo
- * Run database/schema.sql and database/seed.sql in Supabase first.
- * Safe to run more than once: existing demo users get their password reset.
- */
 import 'dotenv/config';
 import { firebaseAuth } from '../src/config/firebase.js';
 import { supabase } from '../src/config/supabase.js';
@@ -40,11 +32,10 @@ async function main() {
       { onConflict: 'firebase_uid' },
     ).select().single());
     ids[u.email] = row.id;
-    console.log(`✓ ${u.role.padEnd(10)} ${u.email}`);
+    console.log(`created ${u.role.padEnd(10)} ${u.email}`);
   }
 
   const instructorId = ids['instructor@learnsphere.demo'];
-  // Hand the sample courses from seed.sql to the real demo instructor.
   const placeholder = check(await supabase.from('users').select('id').eq('firebase_uid', SEED_INSTRUCTOR_UID).maybeSingle());
   if (placeholder) {
     check(await supabase.from('courses').update({ instructor_id: instructorId }).eq('instructor_id', placeholder.id));
@@ -57,7 +48,6 @@ async function main() {
     return;
   }
 
-  // Student 1: enrolled in two courses, some modules done, one graded + one pending submission.
   const s1 = ids['student@learnsphere.demo'];
   const s2 = ids['student2@learnsphere.demo'];
   for (const [student, list] of [[s1, courses.slice(0, 2)], [s2, courses.slice(0, 1)]]) {
@@ -95,4 +85,4 @@ async function main() {
   console.log(`\nDemo data ready. Password for every account: ${PASSWORD}`);
 }
 
-main().then(() => process.exit(0)).catch((err) => { console.error('\n✗', err.message); process.exit(1); });
+main().then(() => process.exit(0)).catch((err) => { console.error('\nSeeding failed:', err.message); process.exit(1); });

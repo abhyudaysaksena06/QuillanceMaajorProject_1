@@ -41,7 +41,6 @@ router.get('/', asyncHandler(async (req, res) => {
       .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
       .slice(0, 5);
 
-    // Recent activity: modules completed, assignments submitted and graded.
     const activity = [
       ...progressRows.filter((p) => p.lesson).map((p) => ({
         type: 'module', at: p.completed_at, text: `Completed module "${p.lesson.title}"`, course: p.lesson.course?.title, link: `/courses/${p.lesson.course_id}/lessons/${p.lesson.id}` })),
@@ -68,7 +67,6 @@ router.get('/', asyncHandler(async (req, res) => {
     });
   }
 
-  // Instructor / admin view.
   let coursesQuery = supabase.from('courses').select('id, title, published');
   if (user.role !== 'admin') coursesQuery = coursesQuery.eq('instructor_id', user.id);
   const courses = unwrap(await coursesQuery);

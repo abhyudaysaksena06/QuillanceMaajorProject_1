@@ -2,7 +2,6 @@ import { auth } from './firebase';
 
 const BASE = `${(import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '')}/api`;
 
-/** Fetch wrapper that attaches a fresh Firebase ID token to every request. */
 export async function api(path, { method = 'GET', body } = {}) {
   const token = await auth.currentUser?.getIdToken();
   let res;

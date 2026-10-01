@@ -1,7 +1,3 @@
-/**
- * Segmented progress: one tick per module when `total` is known,
- * otherwise a continuous hairline bar.
- */
 export default function ProgressBar({ value, total, done, showLabel = true }) {
   const segmented = total > 0 && total <= 24;
   const filled = done ?? Math.round((value / 100) * (total || 0));
