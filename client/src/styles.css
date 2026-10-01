@@ -344,17 +344,7 @@ a.list-row:hover { padding-left: .7rem; color: var(--accent); }
 .btn-ghost:hover:not(:disabled), .btn-google:hover, .btn-danger:hover { color: var(--ink); border-color: var(--paper); background: transparent; }
 .btn-danger:hover { border-color: var(--accent); }
 
-:root[data-theme="dark"] {
-  --ink: #1b1713; --panel: #241f1a; --panel2: #2f2822; --line: #40372d; --fog: #a59684; --paper: #ede4d4;
-  --accent: #e0654b; --accent-soft: #e0654b1c; --ok: #93b17a; --ok-soft: #93b17a1f; --warn: #d9a54e; --warn-soft: #d9a54e1f;
-  --code: #110d0a; --field: #1f1a16;
-  color-scheme: dark;
-}
-:root[data-theme="dark"] body::before { opacity: .12; mix-blend-mode: screen; }
-:root[data-theme="dark"] .btn-primary:hover:not(:disabled) { background: #c9533b; }
-:root[data-theme="dark"] .btn-success:hover:not(:disabled) { background: #fff; }
 
-.theme-toggle { font-size: .9rem; line-height: 1; }
 
 .bell { position: relative; }
 .bell .icon-btn { display: grid; place-items: center; position: relative; }

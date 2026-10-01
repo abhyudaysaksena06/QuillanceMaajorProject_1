@@ -74,7 +74,6 @@ Online learning is often spread across chat groups, drive folders and spreadshee
 
 ### Everyone
 - **Notifications** bell: new assignments, marks, resubmission requests, certificates, discussion replies and announcements. Optional email copies when SMTP is configured.
-- **Dark mode**, remembered per browser.
 - **Profile photo upload** (Supabase Storage).
 - API **rate limiting** and Helmet security headers.
 
