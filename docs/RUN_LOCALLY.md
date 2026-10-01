@@ -6,7 +6,6 @@ About 15 minutes the first time. You need **Node.js 18+** ([nodejs.org](https://
 ```bash
 git clone https://github.com/abhyudaysaksena06/QuillanceMaajorProject_1.git
 cd QuillanceMaajorProject_1
-git checkout claude/epic-ride-nxcipw
 npm run setup
 ```
 
