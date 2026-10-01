@@ -457,3 +457,6 @@ a.list-row:hover { padding-left: .7rem; color: var(--accent); }
 .cert-deva { color: color-mix(in srgb, var(--accent) 8%, transparent); }
 @media (max-width: 700px) { .page > .page-index { right: .5rem; } .app-deva { font-size: 8rem; } }
 @media print { .app-deva, .scroll-progress { display: none; } }
+
+html, body, * { scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar { display: none; width: 0; height: 0; }
