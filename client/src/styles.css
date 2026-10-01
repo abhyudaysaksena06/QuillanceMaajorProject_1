@@ -150,7 +150,6 @@ a.list-row:hover { padding-left: .7rem; color: var(--accent); }
 .log li { position: relative; padding: .55rem 0; }
 .log li::before { content: ""; position: absolute; left: calc(-1.4rem + 1px); top: .9rem; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--accent); background: var(--ink); }
 .log li.grade::before { background: var(--accent); }
-.log .hash { color: var(--accent); margin-right: .7rem; }
 .log a { color: var(--paper); }
 .log a:hover { color: var(--accent); }
 .log .when { display: block; color: var(--fog); font-size: .7rem; margin-top: .1rem; }

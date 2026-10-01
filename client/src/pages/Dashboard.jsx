@@ -6,7 +6,7 @@ import Loader from '../components/Loader';
 import CourseCard from '../components/CourseCard';
 import ProgressBar from '../components/ProgressBar';
 import { BarList, TrendChart, Donut } from '../components/Charts';
-import { formatDate, relativeDue, shortHash } from '../utils';
+import { formatDate, relativeDue } from '../utils';
 
 function Stat({ index, label, value, suffix }) {
   return (
@@ -87,11 +87,10 @@ export default function Dashboard() {
           </div>
 
           <section className="card">
-            <div className="card-header"><h2>Activity log</h2><span className="eyebrow">git log --you</span></div>
+            <div className="card-header"><h2>Activity log</h2><span className="eyebrow">Recent</span></div>
             <ul className="log">
               {data.recent_activity.map((a, i) => (
                 <li key={i} className={a.type}>
-                  <span className="hash">{shortHash(a.text + a.at)}</span>
                   <Link to={a.link}>{a.text}</Link>
                   <span className="when">{formatDate(a.at)}{a.course ? ` · ${a.course}` : ''}</span>
                 </li>
