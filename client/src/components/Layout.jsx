@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Avatar from './Avatar';
 import NotificationBell from './NotificationBell';
+import ScrollProgress from './ScrollProgress';
 
 function linksFor(role) {
   const links = [
@@ -30,6 +31,12 @@ export default function Layout() {
 
   useEffect(() => setOpen(false), [location.pathname]);
 
+  const current = links
+    .map((l, i) => ({ ...l, i }))
+    .filter((l) => location.pathname === l.to || location.pathname.startsWith(`${l.to}/`))
+    .sort((a, b) => b.to.length - a.to.length)[0];
+  const pageIndex = current ? String(current.i + 1).padStart(2, '0') : null;
+
   const handleLogout = async () => {
     await logout();
     navigate('/');
@@ -37,9 +44,11 @@ export default function Layout() {
 
   return (
     <>
+      <ScrollProgress />
+      <span className="app-deva" aria-hidden>विद्या</span>
       <header className="topnav">
         <div className="topnav-inner">
-          <Link to="/dashboard" className="wordmark">LearnSphere <small>LMS · {user.role}</small></Link>
+          <Link to="/dashboard" className="wordmark">LearnSphere <small><span className="deva-inline">विद्या</span> · {user.role}</small></Link>
           <nav className="navlinks">
             {links.map((l, i) => (
               <NavLink key={l.to} to={l.to} end className={({ isActive }) => `link-underline ${isActive ? 'active' : ''}`}>
@@ -74,7 +83,10 @@ export default function Layout() {
       </div>
 
       <main className="main">
-        <div className="page" key={location.pathname}><Outlet /></div>
+        <div className="page" key={location.pathname}>
+          {pageIndex && <span className="page-index" aria-hidden>{pageIndex}</span>}
+          <Outlet />
+        </div>
       </main>
     </>
   );

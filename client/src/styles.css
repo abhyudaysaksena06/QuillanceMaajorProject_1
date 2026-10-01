@@ -443,3 +443,17 @@ a.list-row:hover { padding-left: .7rem; color: var(--accent); }
 .table tr.turn-in-row td { background: var(--accent-soft); padding: 0 1rem 1.2rem; }
 .table tr.turn-in-row:hover td { background: var(--accent-soft); }
 .turn-in { gap: .8rem; }
+
+.scroll-progress { position: fixed; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; z-index: 70; pointer-events: none; }
+.app-deva { position: fixed; right: -1.5rem; bottom: -3.5rem; z-index: 0; font-family: "Noto Serif Devanagari", "Nirmala UI", serif; font-size: clamp(9rem, 22vw, 19rem); line-height: 1; color: color-mix(in srgb, var(--accent) 8%, transparent); pointer-events: none; user-select: none; }
+.main { position: relative; z-index: 1; }
+.page { position: relative; }
+.page > .page-index { position: absolute; right: 1.5rem; top: .5rem; font-family: var(--display); font-size: clamp(5rem, 12vw, 9.5rem); line-height: 1; color: color-mix(in srgb, var(--paper) 6%, transparent); pointer-events: none; user-select: none; animation: rise .9s var(--ease) both; z-index: 0; }
+.page > *:not(.page-index) { position: relative; z-index: 1; }
+.deva-inline { font-family: "Noto Serif Devanagari", "Nirmala UI", serif; letter-spacing: 0; text-transform: none; font-size: .78rem; color: var(--accent); }
+.hero-deva, .watermark-deva, .cert-deva { font-family: "Noto Serif Devanagari", "Nirmala UI", serif; }
+.hero-deva { color: color-mix(in srgb, var(--accent) 11%, transparent); }
+.watermark-deva { color: color-mix(in srgb, var(--accent) 10%, transparent); }
+.cert-deva { color: color-mix(in srgb, var(--accent) 8%, transparent); }
+@media (max-width: 700px) { .page > .page-index { right: .5rem; } .app-deva { font-size: 8rem; } }
+@media print { .app-deva, .scroll-progress { display: none; } }
