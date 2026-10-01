@@ -16,7 +16,10 @@ import { supabase } from './config/supabase.js';
 const app = express();
 
 app.use(helmet());
-app.use(cors({ origin: (process.env.CLIENT_URL || 'http://localhost:5173').split(','), credentials: true }));
+// Accept "https://a.app, https://b.app/" style lists: trim spaces and trailing slashes.
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',').map((o) => o.trim().replace(/\/+$/, '')).filter(Boolean);
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
 
