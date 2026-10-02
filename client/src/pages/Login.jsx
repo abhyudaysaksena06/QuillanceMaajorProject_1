@@ -87,13 +87,13 @@ export default function Login({ mode = 'login' }) {
         <Link to="/" className="wordmark auth-brand">LearnSphere <small>LMS</small></Link>
         <div>
           <p className="eyebrow">[ {isRegister ? 'New here' : 'Returning'} ]</p>
-          <h1>{isRegister ? 'Start a new chapter.' : 'Pick up where you left off.'}</h1>
+          <h1>{isRegister ? 'Join LearnSphere.' : 'Good to see you again.'}</h1>
           <p>Courses, modules, assignments and progress, for students, instructors and administrators.</p>
           <ul className="feature-list">
             <li><span>01</span>Ordered modules with notes, video and materials</li>
             <li><span>02</span>Progress that fills in as you finish each module</li>
             <li><span>03</span>Assignments with marks and written feedback</li>
-            <li><span>04</span>Role-based access, verified on every request</li>
+            <li><span>04</span>Separate pages for students, instructors and admins</li>
           </ul>
         </div>
         <span className="watermark-deva" aria-hidden>विद्या</span>

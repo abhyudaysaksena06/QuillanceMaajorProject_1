@@ -1,6 +1,6 @@
-# Testing Checklist
+# Testing checklist
 
-Manual tests against the project brief's checklist. Tick them off before you submit.
+These are the checks I ran by hand on the live site, based on the testing list in the project brief.
 
 | # | Test | How | Expected |
 |---|---|---|---|

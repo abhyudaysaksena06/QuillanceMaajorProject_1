@@ -42,7 +42,7 @@ pre { font: 8.4pt/1.5 "DejaVu Sans Mono", monospace; background: #241c17; color:
   <div>
     <p class="eyebrow">Major Project · Full Stack Development · Quillance Infotech Pvt. Ltd.</p>
     <h1>LearnSphere</h1>
-    <p class="sub">A Learning Management System where students enroll, study course modules, submit assignments and track their progress, and instructors build courses and review work.</p>
+    <p class="sub">A learning management system where students take courses module by module, hand in assignments and follow their progress, and instructors build the courses and mark the work.</p>
   </div>
   <table>
     <tr><td>Project</td><td>Learning Management System (LMS): LearnSphere</td></tr>
@@ -65,9 +65,8 @@ pre { font: 8.4pt/1.5 "DejaVu Sans Mono", monospace; background: #241c17; color:
 <section class="page">
   <p class="eyebrow">01 · Overview</p>
   <h2>Problem statement and objectives</h2>
-  <p class="lead">Why the project exists and what it set out to do.</p>
-  <p>In many courses the material, the deadlines and the marks are spread across chat groups, shared drives and spreadsheets. Students lose track of what is due, and instructors cannot easily see who is falling behind or which work still needs marking.</p>
-  <p>LearnSphere brings these into one web application with separate, role-based workspaces for students, instructors and administrators. Course content, submissions and progress are stored in one database and served through a single REST API.</p>
+    <p>In most of my own courses, the reading material sat in a Drive folder, deadlines were announced in a WhatsApp group and marks came back in a spreadsheet. It was easy to miss something that was due, and the instructor had no simple way to see who had fallen behind.</p>
+  <p>LearnSphere puts all of this in one website. Students, instructors and admins each get their own pages, and everything (courses, submissions, marks and progress) is stored in one database behind one REST API.</p>
   <h3>Objectives</h3>
   <ul>
     <li>Secure registration and login, with role-based access for students, instructors and admins.</li>
@@ -75,7 +74,7 @@ pre { font: 8.4pt/1.5 "DejaVu Sans Mono", monospace; background: #241c17; color:
     <li>Students can browse the catalog, enroll, study module material and submit assignments.</li>
     <li>Progress is calculated from completed modules and shown as percentages, progress bars and status.</li>
     <li>Instructors review submissions, award marks, write feedback or request a resubmission.</li>
-    <li>The project demonstrates the full stack: frontend, REST API, authentication, database and deployment.</li>
+    <li>Build and deploy every layer myself: frontend, API, login, database and hosting.</li>
   </ul>
   <h3>Scope against the minimum completion criteria</h3>
   <table>
@@ -96,7 +95,7 @@ pre { font: 8.4pt/1.5 "DejaVu Sans Mono", monospace; background: #241c17; color:
 <section class="page">
   <p class="eyebrow">02 · Users</p>
   <h2>User roles and access control</h2>
-  <p class="lead">Every rule below is checked on the server, not only hidden in the interface.</p>
+  <p class="lead">Hiding a button in the interface is not enough, so every one of these rules is also checked by the server.</p>
   <table>
     <tr><th style="width:24%">Role</th><th>Capabilities</th><th style="width:28%">Main screens</th></tr>
     <tr><td><b>Student</b></td><td>Register and log in, browse and filter courses, enroll or leave, study modules, pass module quizzes, submit text, links or files until graded, view marks and feedback, ask questions in the course discussion, keep personal notes, track progress and earn certificates.</td><td>Dashboard, Catalog, My Courses, Module view, Assignments, Profile</td></tr>
@@ -110,7 +109,7 @@ pre { font: 8.4pt/1.5 "DejaVu Sans Mono", monospace; background: #241c17; color:
     <li>The <code>authenticate</code> middleware verifies the token with the Firebase Admin SDK, then loads the matching row from the <code>users</code> table, creating it on first login. Deactivated accounts are rejected with 403.</li>
     <li><code>requireRole()</code> checks the role for the route, and ownership helpers (<code>assertCanManage</code>, <code>isEnrolled</code>) check that the user owns the course or is enrolled in it.</li>
   </ol>
-  <div class="note">The browser never talks to the database. Row Level Security is enabled on every table with no public policies, so the public Supabase key can read nothing. Only the server, holding the service-role key, can query data.</div>
+  <div class="note">The browser never talks to the database. Row Level Security is switched on for every table and no public policies exist, so the public Supabase key cannot read anything. Only the server, which holds the service role key, can query the data.</div>
   <h3>Onboarding</h3>
   <p>On first login a new user chooses <i>I want to learn</i> or <i>I want to teach</i>. Emails listed in the server's <code>ADMIN_EMAILS</code> setting are made admins automatically. Admins can change any user's role later.</p>
 </section>
@@ -151,7 +150,7 @@ pre { font: 8.4pt/1.5 "DejaVu Sans Mono", monospace; background: #241c17; color:
 <section class="page">
   <p class="eyebrow">04 · Architecture</p>
   <h2>System architecture</h2>
-  <p class="lead">A React single-page app talks to an Express REST API; the API is the only component that reaches the database.</p>
+  <p class="lead">The React app only ever talks to the Express API, and the API is the only thing that talks to the database.</p>
   <div class="flow">
     <div><b>Browser</b>React SPA<br>React Router</div><span>→</span>
     <div><b>Firebase Auth</b>sign-in<br>issues ID token</div><span>→</span>
@@ -162,31 +161,34 @@ pre { font: 8.4pt/1.5 "DejaVu Sans Mono", monospace; background: #241c17; color:
 <pre>client/                React frontend (Vite)
   src/api.js           fetch wrapper, attaches the Firebase ID token
   src/context/         AuthContext: session, profile, login/register/logout
-  src/components/      Layout, ProtectedRoute, CourseCard, ProgressBar, GradeForm
+  src/components/      Layout, CourseCard, ProgressBar, QuizPanel, Discussion,
+                       TurnInForm, NotificationBell, Charts and others
   src/pages/           Home, Login, Onboarding, Dashboard, Courses, CourseDetail,
                        LessonView, MyLearning, Assignments, AssignmentDetail,
-                       Teach, CourseEditor, Submissions, Admin, Profile
+                       Teach, CourseEditor, Submissions, Admin, Profile, Certificate
 server/                Express backend
   src/config/          Firebase Admin and Supabase clients
   src/middleware/      authenticate, requireRole
-  src/routes/          auth, courses, lessons, assignments, dashboard, admin
+  src/routes/          auth, courses, lessons, assignments, discussions,
+                       notifications, dashboard, admin
+  src/lib/             notifications, file storage, progress and certificates
   scripts/seed-demo.js creates demo accounts and sample progress
-database/              schema.sql, seed.sql, setup_all.sql, ER diagram</pre>
+database/              setup_all.sql, schema.sql, seed.sql, migration, ER diagram</pre>
   <h3>Design decisions</h3>
   <ul>
-    <li><b>Firebase for identity, Supabase for data.</b> Firebase handles password hashing, Google OAuth and password reset; Supabase gives a managed relational database for the course data.</li>
-    <li><b>Progress is calculated, not stored.</b> Course progress is completed modules divided by total modules, computed from <code>lesson_progress</code> on each request, so it cannot go out of sync when modules are added or removed.</li>
-    <li><b>Input whitelisting.</b> Each route copies only allowed fields from the request body before writing to the database.</li>
-    <li><b>Security headers and CORS.</b> Helmet sets HTTP security headers; CORS allows only the configured frontend origins.</li>
+    <li>I used Firebase for logins because it already handles password hashing, Google sign-in and reset emails, and Supabase for the data because the course data is relational and fits PostgreSQL well.</li>
+    <li>Progress is not saved as a number. It is worked out from <code>lesson_progress</code> each time (finished modules divided by total modules), so it stays right when an instructor adds or removes a module.</li>
+    <li>Each route copies only the fields it expects from the request body before writing anything, so extra fields sent by a client are ignored.</li>
+    <li>Helmet adds the standard security headers, CORS only accepts requests from my own frontend, and there is a rate limit on the API.</li>
   </ul>
   <h3>Interface</h3>
-  <p>The interface uses a warm paper-and-ink theme (cream background, dark brown text, one terracotta accent) with serif headings, a numbered top navigation that becomes a full-screen menu on phones, and a few subtle transitions. It is responsive from 360 px phones to desktop.</p>
+  <p>I wanted the site to look like a printed course book rather than a typical admin dashboard, so it uses a cream background, dark brown text, a single terracotta accent and serif headings, with the word विद्या (knowledge) as a faint watermark. On phones the top menu turns into a full-screen menu, and the layout works down to about 360 px wide.</p>
 </section>
 
 <section class="page">
   <p class="eyebrow">05 · Data</p>
   <h2>Database schema</h2>
-  <p class="lead">Eleven PostgreSQL tables and two storage buckets in Supabase. UUID primary keys, foreign keys with cascading deletes.</p>
+  <p class="lead">There are eleven tables and two file storage buckets. Every table uses UUID keys, and deleting a course also deletes its modules, assignments and enrollments.</p>
   <table>
     <tr><th style="width:20%">Table</th><th>Key fields</th><th style="width:30%">Constraints</th></tr>
     <tr><td>users</td><td>firebase_uid, email, name, role, onboarded, is_active, bio</td><td>firebase_uid unique; role in student / instructor / admin</td></tr>
@@ -205,7 +207,7 @@ database/              schema.sql, seed.sql, setup_all.sql, ER diagram</pre>
 <section class="page">
   <p class="eyebrow">05 · Data (continued)</p>
   <h2>REST API</h2>
-  <p class="lead">Selected endpoints. Every route except the public ones needs a Firebase ID token.</p>
+  <p class="lead">These are the main routes. Apart from the public ones, every request needs a valid Firebase token.</p>
   <table>
     <tr><th style="width:12%">Method</th><th style="width:38%">Endpoint</th><th>Purpose</th><th style="width:17%">Access</th></tr>
     <tr><td>GET</td><td class="mono">/api/auth/me</td><td>Current profile (created on first login)</td><td>Signed in</td></tr>
@@ -254,27 +256,27 @@ npm run dev</pre>
     <tr><td>Admin</td><td class="mono">admin@learnsphere.demo</td><td class="mono">Demo@1234</td><td>User management and statistics</td></tr>
   </table>
   <h3>Testing</h3>
-  <p>The testing checklist from the brief was covered manually (<code>docs/TESTING.md</code>): valid and invalid login, duplicate registration, students blocked from instructor and admin pages and APIs (403), course and assignment CRUD, duplicate enrollment rejected (409), submissions stored, progress updated after module completion, form validation, mobile layout, and data persisting after a restart.</p>
+  <p>I tested everything by hand, following the checklist in the brief (the full list is in <code>docs/TESTING.md</code>). This covered correct and wrong logins, signing up twice with the same email, a student trying to open instructor and admin pages or call their APIs (they get a 403), creating, editing and deleting courses and assignments, enrolling twice (409), submissions being saved, progress updating after a module, form validation, the phone layout, and data still being there after restarting the server.</p>
 </section>
 
 <section class="page">
   <p class="eyebrow">07 · Closing</p>
   <h2>Outcome and future work</h2>
-  <p>LearnSphere is a working full-stack LMS: administrators and instructors manage courses, modules and assignments; students enroll, complete modules, submit work and follow their progress. The project shows a React frontend, an Express REST API, Firebase authentication with role-based authorization, a relational database with enforced constraints, and cloud deployment working together.</p>
+  <p>LearnSphere is live and covers everything the brief asked for, plus most of the optional features. Instructors and admins manage courses, modules, quizzes and assignments, and students enroll, finish modules, hand in work and get marks, feedback and certificates. Building it meant getting a React frontend, an Express API, Firebase logins, a PostgreSQL database and two hosting services to work together.</p>
   <h3>Challenges</h3>
   <ul>
-    <li>Combining two services for auth and data: solved by verifying Firebase tokens on the server and mapping each Firebase user to a database row.</li>
-    <li>Keeping data private while using a hosted database: solved with Row Level Security and a server-only service key.</li>
-    <li>Accurate progress when course content changes: solved by computing progress from completed modules instead of storing a number.</li>
-    <li>Cross-origin requests between Vercel and Render: solved with a configurable CORS allow-list.</li>
-    <li>Keeping quiz answers secret: the server strips them from course data and grades attempts itself.</li>
+    <li>Login lives in Firebase but the data lives in Supabase. The server checks the Firebase token on every request and links each Firebase user to a row in my <code>users</code> table.</li>
+    <li>A hosted database is reachable from the internet, so I turned on Row Level Security and kept the service key on the server only.</li>
+    <li>A stored progress percentage went wrong whenever a module was added, so progress is now calculated from the finished modules instead.</li>
+    <li>After deploying, the browser blocked calls from Vercel to Render. A CORS allow-list read from an environment variable fixed it.</li>
+    <li>The quiz answers must not reach the browser, so the server removes them before sending a module to a student and marks the answers itself.</li>
   </ul>
   <h3>Future improvements</h3>
   <ul>
     <li>Course ratings and reviews</li>
     <li>Live classes and attendance tracking</li>
     <li>Real-time notifications over WebSockets instead of polling</li>
-    <li>Automated test suite in CI</li>
+    <li>Automated tests that run on every push</li>
   </ul>
   <h3>Submission contents</h3>
   <table>

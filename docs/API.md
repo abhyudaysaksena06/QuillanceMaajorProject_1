@@ -1,6 +1,6 @@
 # REST API Reference
 
-Base URL: `/api`. Every endpoint except `/health` needs `Authorization: Bearer <Firebase ID token>`.
+Base URL: `/api`. Apart from `/health` and the `/public/...` routes, every request needs an `Authorization: Bearer <Firebase ID token>` header.
 
 | Method | Endpoint | Role | Description |
 |---|---|---|---|
