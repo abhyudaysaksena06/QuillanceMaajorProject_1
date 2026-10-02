@@ -76,7 +76,7 @@ The SQL is in [`database/`](database/): `setup_all.sql` creates everything from 
 client/        React frontend (pages, components, styles)
 server/        Express API (routes, auth middleware, helpers, demo seed script)
 database/      SQL files and the ER diagram
-docs/          API list, test checklist, local setup guide, demo video script
+docs/          API list, test checklist and local setup guide
 submission/    project report, screenshots and the final zip
 ```
 

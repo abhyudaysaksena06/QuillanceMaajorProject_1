@@ -11,9 +11,8 @@ npm run setup
 
 ## 2. Supabase (database)
 1. Sign in at [supabase.com](https://supabase.com) and create a **New project**. Wait about a minute for it to start.
-2. Go to **SQL Editor → New query**. Paste all of `database/schema.sql` and click **Run**.
-3. Start another new query, paste `database/seed.sql`, and click **Run**. This adds the sample courses.
-4. Go to **Project Settings → API** and copy the **Project URL** and the **service_role** key.
+2. Go to **SQL Editor → New query**, paste all of `database/setup_all.sql` and click **Run**. This creates the tables, the file storage buckets and the sample courses.
+3. Go to **Project Settings → API** and copy the **Project URL** and the **service_role** key.
 
 ## 3. Firebase (login)
 1. At [console.firebase.google.com](https://console.firebase.google.com), click **Add project**.
@@ -74,6 +73,6 @@ Every account uses the password **`Demo@1234`**.
 | `SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set` | `server/.env` is missing or still has placeholder values |
 | `Failed to parse private key` | Keep `FIREBASE_PRIVATE_KEY` in double quotes, with the `\n` characters as they are |
 | `auth/invalid-api-key` in the browser | Check `client/.env`, then restart `npm run dev` |
-| `Could not find the table 'public.users'` | You haven't run `schema.sql` in Supabase yet |
+| `Could not find the table 'public.users'` | `setup_all.sql` hasn't been run in Supabase yet |
 | Google popup: `unauthorized-domain` | Firebase → Authentication → Settings → Authorized domains: add `localhost` |
 | Port 5173 or 5000 already in use | Close the other app, or change `PORT` in `server/.env` |

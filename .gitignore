@@ -4,7 +4,3 @@ dist/
 .env.local
 *.log
 .DS_Store
-submission/*.mp4
-submission/*.mov
-submission/*.webm
-submission/*.mkv

@@ -47,7 +47,7 @@ async function main() {
   const order = ['Full Stack Development', 'JavaScript Fundamentals'];
   const courses = [...all].sort((a, b) => ((order.indexOf(a.title) + 1) || 99) - ((order.indexOf(b.title) + 1) || 99));
   if (!courses.length) {
-    console.log('\nNo sample courses found. Run database/seed.sql in Supabase, then run this script again.');
+    console.log('\nNo sample courses found. Run database/setup_all.sql in Supabase, then run this script again.');
     return;
   }
 
