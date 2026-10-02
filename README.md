@@ -194,11 +194,13 @@ See [`docs/API.md`](docs/API.md).
 See [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) for a 60-second walkthrough script.
 
 ## Screenshots
-Put screenshots in [`docs/screenshots/`](docs/screenshots/) and link them here, for example:
+All screenshots are in [`submission/Screenshots/`](submission/Screenshots/).
 
-| Home | Student dashboard | Module view |
+| Home | Student dashboard | Certificate |
 |---|---|---|
-| ![](docs/screenshots/home.png) | ![](docs/screenshots/student-dashboard.png) | ![](docs/screenshots/module.png) |
+| ![](submission/Screenshots/01-home-page.png) | ![](submission/Screenshots/04-student-dashboard.png) | ![](submission/Screenshots/09-certificate.png) |
+| **Assignments** | **Instructor dashboard** | **Submissions review** |
+| ![](submission/Screenshots/07-assignments.png) | ![](submission/Screenshots/11-instructor-dashboard.png) | ![](submission/Screenshots/13-submissions-review.png) |
 
 ## Testing
 See [`docs/TESTING.md`](docs/TESTING.md) for the test checklist.
